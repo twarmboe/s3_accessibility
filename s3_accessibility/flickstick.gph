@@ -1,0 +1,134 @@
+#ifndef FLICKSTICK_GPH_
+#define FLICKSTICK_GPH_
+
+#include "safeprint.gph"
+#include "rstick.gph"
+#include "tween.gph"
+#include <switch.gph>
+
+#define INPUT_BUFFER_LEN 10
+
+// mostly following jib's tutorial at:
+// http://gyrowiki.jibbsmart.com/blog:good-gyro-controls-part-2:the-flick-stick
+
+uint32 flickProgress = 0;
+fix32 flickSize = 0.0;
+
+fix32 flickThresholdMag = 90.0;
+uint32 flickTimeMs = 100;
+
+//stick smoothing buffer
+fix32 inputBuffer[INPUT_BUFFER_LEN];
+int32 currentInputIdx = 0;
+
+fix32 turnSmoothThreshold = 0.1;
+
+// should return a yaw change to be added to gyro
+fix32 handleFlickStick(
+    fix32 lastDeflection, 
+	fix32 lastMagnitude, 
+	fix32 currentDeflection,
+	fix32 currentMagnitude,
+	uint32 deltaTimeMs) 
+{
+		fix32 result = 0.0;
+		
+		//need to decide if a flick is starting
+		if(currentMagnitude >= flickThresholdMag){
+			if(lastMagnitude < flickThresholdMag) {
+				//flick has been started
+				printf("flick started");
+				flickProgress = 0; //reset flick timer
+				flickSize = currentDeflection;
+			}
+			else {
+				//turn
+				fix32 angleChange = smallestAngle(currentDeflection - lastDeflection);
+				//printf("angle change r: %f    d: %f", angleChange, rad2deg(angleChange));
+				result += getTieredSmoothedStickRotation(angleChange, turnSmoothThreshold / 2.0, turnSmoothThreshold);
+				//result += angleChange;
+				
+			}
+		} else {
+			//turn cleanup
+			if(lastMagnitude >= flickThresholdMag) {
+				//we've just transitioned from flick/turn state to no flick
+				zeroTurnSmoothing();
+			}
+		}
+		
+		/**
+		if(flickSize == 0.0) {
+			return result;
+		}
+		**/
+		
+		//continue flick
+		
+		
+		uint32 lastFlickProgress = flickProgress;
+		if(lastFlickProgress < flickTimeMs) {
+			flickProgress = min(flickProgress + deltaTimeMs, flickTimeMs);
+			
+			// want to get this in the range between 0.0 and 1.0
+			fix32 lastPerOne = ((fix32)lastFlickProgress) / ((fix32)flickTimeMs);
+			fix32 currentPerOne = ((fix32)flickProgress) / ((fix32)flickTimeMs);
+			
+			// stay within 0.0 to 1.0 but push closer to 1.0
+			fix32 warpedLastPerOne = warpEaseOut(lastPerOne);
+			fix32 warpedCurrentPerOne = warpEaseOut(currentPerOne);
+			
+			//printf("lp1: %f, cp1: %f", lastPerOne, currentPerOne);
+			
+			// use the difference between last sample and this sample
+			result += (warpedCurrentPerOne - warpedLastPerOne) * flickSize;	
+		}
+		
+		return result;
+}
+
+
+fix32 getSmoothedStickRotation(fix32 input) 
+{
+	//advance ring buffer
+	currentInputIdx = (currentInputIdx + 1) % INPUT_BUFFER_LEN;
+	inputBuffer[currentInputIdx] = input;
+	
+	fix32 avg = 0.0;
+	
+	int32 i;
+	for(i = 0; i < INPUT_BUFFER_LEN; i++) {
+		avg += inputBuffer[i];
+	}
+	
+	avg = avg / (fix32)INPUT_BUFFER_LEN;
+	
+	//just give us the average of the past few samples
+	return avg;
+}
+
+fix32 getDirectStickRotation(fix32 input) {
+	return input;
+}
+
+fix32 getTieredSmoothedStickRotation(fix32 input, 
+                                     fix32 threshold1, 
+                                     fix32 threshold2) 
+{
+    fix32 inputMagnitude = abs(input);
+    fix32 directWeight = (inputMagnitude - threshold1) / (threshold2 - threshold1);
+    directWeight = clamp(directWeight, 0.0, 1.0);
+	
+	return getDirectStickRotation(input * directWeight + getSmoothedStickRotation(input * (1.0 - directWeight)));
+}
+
+void zeroTurnSmoothing()
+{
+	int32 i;
+	for(i = 0; i < INPUT_BUFFER_LEN; i++) {
+		inputBuffer[i] = 0.0;
+	}
+}
+
+
+#endif

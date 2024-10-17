@@ -1,0 +1,11 @@
+#ifndef TWEEN_GPH_
+#define TWEEN_GPH_
+
+
+fix32 warpEaseOut(fix32 value) {
+	fix32 flipped = 1.0 - value;
+	return 1.0 - sq(flipped);
+}
+
+
+#endif

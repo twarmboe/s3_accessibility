@@ -1,0 +1,62 @@
+#pragma METAINFO("gyrotest", 1, 0, "beerSnobbery")
+
+#include "safeprint.gph"
+#include "rstick.gph"
+#include "flickstick.gph"
+
+fix32 lastAngle = 0.0;
+fix32 lastMagnitude = 0.0;
+
+//TODO: fine tune at +5 sens (currently roughly okay @ 2.5)
+fix32 flickMult = 2000.0;
+
+fix32 flickYaw = 0.0;
+
+main
+{
+
+	blockRightStick();
+	
+	//set_val(GYRO_1_X, 0.0);
+	//set_val(GYRO_1_Y, 0.0);
+	//set_val(ACCEL_1_X, -0.25);
+	//set_val(ACCEL_1_X, 0.0);
+	//set_val(ACCEL_1_Y, 0.0);
+	//set_val(ACCEL_1_Z, -24.65);
+	
+
+	uint32 dt = elapsed_time();
+	
+	//hack for now, if we can't tell how much time has elapsed
+    //then we don't run the flickstick calc just use our previous value
+	if(dt > 0) {
+	  fix32 rad = rightStickAngle();
+	  fix32 m = rightStickMagnitude();
+		
+	  fix32 flickAmount = handleFlickStick(lastAngle, lastMagnitude, rad, m, dt);
+	
+	  lastAngle = rad;
+	  lastMagnitude = m;
+	
+	  flickYaw = (flickAmount * flickMult);	  
+	}
+	
+	fix32 newZ = get_actual(GYRO_1_Z) + flickYaw;
+	set_val(GYRO_1_Z, newZ);
+	//set_val(GYRO_1_Z, flickYaw);
+
+	
+	
+	//dumb 360 lol
+	if(event_active(BUTTON_15)){
+		combo_run(Spin);
+	}
+}
+
+combo Spin 
+{
+	set_val(GYRO_1_Z, 65.9);
+	set_val(GYRO_1_Y, 0);
+	set_val(GYRO_1_X, 0);
+	wait(200);
+}

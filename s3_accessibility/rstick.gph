@@ -1,0 +1,63 @@
+#ifndef RSTICK_GPH_
+#define RSTICK_GPH_
+
+#include "safeprint.gph"
+#include <switch.gph>
+
+
+void blockRightStick()
+{
+	set_val(SWITCH_RX, 0.0);
+	set_val(SWITCH_RY, 0.0);
+}
+
+// returns the angle of the right stick deflection from -pi to pi where 0 is 
+// when the stick is pointed up
+fix32 rightStickAngle() 
+{
+	fix32 rx, ry, rad, deg, magnitude;
+	
+	rx = get_actual(SWITCH_RX);
+	ry = get_actual(SWITCH_RY);	
+	
+	rad = atan2(ry, rx);
+	rad = fixRadians(rad);
+
+	return rad;
+}
+
+
+// returns the magnitude of the right stick deflection from 0.0 to 100.0
+fix32 rightStickMagnitude()
+{
+	fix32 rx, ry, rad, deg, magnitude;
+	
+	rx = get_actual(SWITCH_RX);
+	ry = get_actual(SWITCH_RY);
+	magnitude = sqrt(sq(rx) + sq(ry));
+
+	return clamp(magnitude, 0.0, 100.0);
+}
+
+
+// input has 0.0 at stick all the way right
+// but we want 0.0 to be all the way up so we need to rotate by PI/2
+fix32 fixRadians(fix32 angleInRadians)
+{
+	fix32 fixed = angleInRadians + (PI/2.0);
+	fixed = smallestAngle(fixed);
+	return fixed;	
+}
+
+// find the smallest angle representation of the provided angle so for
+// example 190 degrees would better be represented by -170 because we minimize
+// the arc length
+fix32 smallestAngle(fix32 angleInRadians)
+{
+	return mod(angleInRadians + 3.0*PI, 2.0*PI) - PI;
+}
+
+
+
+
+#endif

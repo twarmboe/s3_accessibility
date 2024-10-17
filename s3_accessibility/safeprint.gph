@@ -1,0 +1,53 @@
+#ifndef SAFEPRINTF_GPH_
+#define SAFEPRINTF_GPH_
+
+// Author: PoshLemur @ consoletuner.com/forum
+// Profile: https://www.consoletuner.com/forum/memberlist.php?mode=viewprofile&u=12318
+// Code Date: MAY-6-2018
+
+/* 
+	USAGE EXAMPLE FOR NEW USERS 
+	<< my-first-script.gpc >>
+	#include "safeprint.gph" 									// if header is in same directory as the script. (RECOMMENDED)
+	#include "{relative_path_to_header}/safeprint.gph" 			// if header is in a subdirectory of the scripts directory.
+	#include "{full_path_to_header}/safeprint.gph" 				// if header is somewhere else on the system.
+	#include <safeprint.gph> 									// if header is in include folder.
+	
+	main {
+		printf("Hello world!");
+	}
+*/
+
+#define printf_def_suppress_ms 600
+#define printf_burst_limit 20
+
+bool is_printf_on_cooldown = FALSE;
+int32 printf_suppress_ms;
+uint32 printf_call_counter;
+
+#define _printf printf
+#define printf(...) 										\
+	do {													\
+		if (!is_printf_on_cooldown) { 						\
+			printf(__VA_ARGS__); 							\
+			printf_suppress_ms = printf_def_suppress_ms;	\
+		}													\
+		printf_call_counter++; 								\
+	} while(0)												\
+
+main 
+{
+	is_printf_on_cooldown = (printf_suppress_ms > 0 && printf_call_counter > printf_burst_limit);
+	
+	if (is_printf_on_cooldown) {
+		printf_suppress_ms = printf_suppress_ms - elapsed_time();
+	}
+	else if (printf_call_counter > printf_burst_limit) {
+		printf("WARNING: %d printf() call(s) suppressed since last printf.",
+				printf_call_counter - printf_burst_limit);
+		printf_suppress_ms = 0;
+		printf_call_counter = 0;
+	}
+}
+
+#endif /*SAFEPRINTF_GPH_*/
