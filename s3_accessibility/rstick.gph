@@ -15,22 +15,22 @@ void blockRightStick()
 // when the stick is pointed up
 fix32 rightStickAngle() 
 {
-	fix32 rx, ry, rad, deg, magnitude;
+	fix32 rx, ry, angle;
 	
 	rx = get_actual(SWITCH_RX);
 	ry = get_actual(SWITCH_RY);	
 	
-	rad = atan2(ry, rx);
-	rad = fixRadians(rad);
+	angle = atan2(rx, -ry);
+	angle = wrap(angle, -PI, PI);
 
-	return rad;
+	return angle;
 }
 
 
 // returns the magnitude of the right stick deflection from 0.0 to 100.0
 fix32 rightStickMagnitude()
 {
-	fix32 rx, ry, rad, deg, magnitude;
+	fix32 rx, ry, magnitude;
 	
 	rx = get_actual(SWITCH_RX);
 	ry = get_actual(SWITCH_RY);
@@ -40,21 +40,13 @@ fix32 rightStickMagnitude()
 }
 
 
-// input has 0.0 at stick all the way right
-// but we want 0.0 to be all the way up so we need to rotate by PI/2
-fix32 fixRadians(fix32 angleInRadians)
-{
-	fix32 fixed = angleInRadians + (PI/2.0);
-	fixed = smallestAngle(fixed);
-	return fixed;	
-}
-
 // find the smallest angle representation of the provided angle so for
 // example 190 degrees would better be represented by -170 because we minimize
 // the arc length
-fix32 smallestAngle(fix32 angleInRadians)
+fix32 wrap(fix32 value, fix32 low, fix32 high)
 {
-	return mod(angleInRadians + 3.0*PI, 2.0*PI) - PI;
+	fix32 delta = high - low;
+	return mod(value + low, delta) - low;
 }
 
 

@@ -30,15 +30,17 @@ main
 	//hack for now, if we can't tell how much time has elapsed
     //then we don't run the flickstick calc just use our previous value
 	if(dt > 0) {
-	  fix32 rad = rightStickAngle();
-	  fix32 m = rightStickMagnitude();
+		fix32 angle = rightStickAngle();
+		fix32 magnitude = rightStickMagnitude();
 		
-	  fix32 flickAmount = handleFlickStick(lastAngle, lastMagnitude, rad, m, dt);
+
+		
+		fix32 flickAmount = handleFlickStick(lastAngle, lastMagnitude, angle, magnitude, dt);
+		
+		lastAngle = angle;
+		lastMagnitude = magnitude;
 	
-	  lastAngle = rad;
-	  lastMagnitude = m;
-	
-	  flickYaw = (flickAmount * flickMult);	  
+		flickYaw = (flickAmount * flickMult);	  
 	}
 	
 	fix32 newZ = get_actual(GYRO_1_Z) + flickYaw;

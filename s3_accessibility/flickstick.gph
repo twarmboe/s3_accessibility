@@ -23,49 +23,46 @@ int32 currentInputIdx = 0;
 
 fix32 turnSmoothThreshold = 0.1;
 
+//keep track of our last complete flick to avoid accidental double flicking bug
+uint32 lastFlickEnd = 0;
+uint32 flickCooldownWindow = 50;
+
+
 // should return a yaw change to be added to gyro
 fix32 handleFlickStick(
-    fix32 lastDeflection, 
+    fix32 lastAngle, 
 	fix32 lastMagnitude, 
-	fix32 currentDeflection,
+	fix32 currentAngle,
 	fix32 currentMagnitude,
 	uint32 deltaTimeMs) 
 {
-		fix32 result = 0.0;
+	fix32 result = 0.0;
+	
+	bool flickOffCooldown = (system_time() - lastFlickEnd) > flickCooldownWindow;
 		
-		//need to decide if a flick is starting
-		if(currentMagnitude >= flickThresholdMag){
-			if(lastMagnitude < flickThresholdMag) {
-				//flick has been started
-				printf("flick started");
-				flickProgress = 0; //reset flick timer
-				flickSize = currentDeflection;
+	//need to decide if a flick is starting
+	if(flickOffCooldown && currentMagnitude >= flickThresholdMag){
+		if(lastMagnitude < flickThresholdMag) {
+			//flick has been started
+			flickProgress = 0; //reset flick timer
+			flickSize = currentAngle;
+		}
+		else {
+			//turn
+			fix32 angleChange = wrap(currentAngle - lastAngle, -PI, PI);
+			
+			result += getTieredSmoothedStickRotation(angleChange, turnSmoothThreshold / 2.0, turnSmoothThreshold);
 			}
-			else {
-				//turn
-				fix32 angleChange = smallestAngle(currentDeflection - lastDeflection);
-				//printf("angle change r: %f    d: %f", angleChange, rad2deg(angleChange));
-				result += getTieredSmoothedStickRotation(angleChange, turnSmoothThreshold / 2.0, turnSmoothThreshold);
-				//result += angleChange;
-				
-			}
-		} else {
+		} else if(flickOffCooldown) {
 			//turn cleanup
 			if(lastMagnitude >= flickThresholdMag) {
+				lastFlickEnd = system_time();
 				//we've just transitioned from flick/turn state to no flick
 				zeroTurnSmoothing();
 			}
 		}
 		
-		/**
-		if(flickSize == 0.0) {
-			return result;
-		}
-		**/
-		
-		//continue flick
-		
-		
+		//continue flick		
 		uint32 lastFlickProgress = flickProgress;
 		if(lastFlickProgress < flickTimeMs) {
 			flickProgress = min(flickProgress + deltaTimeMs, flickTimeMs);
@@ -77,8 +74,6 @@ fix32 handleFlickStick(
 			// stay within 0.0 to 1.0 but push closer to 1.0
 			fix32 warpedLastPerOne = warpEaseOut(lastPerOne);
 			fix32 warpedCurrentPerOne = warpEaseOut(currentPerOne);
-			
-			//printf("lp1: %f, cp1: %f", lastPerOne, currentPerOne);
 			
 			// use the difference between last sample and this sample
 			result += (warpedCurrentPerOne - warpedLastPerOne) * flickSize;	
