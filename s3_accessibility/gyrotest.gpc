@@ -3,12 +3,10 @@
 #include "safeprint.gph"
 #include "rstick.gph"
 #include "flickstick.gph"
+#include "settings.gph"
 
 fix32 lastAngle = 0.0;
 fix32 lastMagnitude = 0.0;
-
-//TODO: fine tune at +5 sens (currently roughly okay @ 2.5)
-fix32 flickMult = 2000.0;
 
 fix32 flickYaw = 0.0;
 
@@ -16,6 +14,9 @@ main
 {
 
 	blockRightStick();
+	
+	//force xhair lol
+	//set_val(BUTTON_5, 100.0);
 	
 	//set_val(GYRO_1_X, 0.0);
 	//set_val(GYRO_1_Y, 0.0);
@@ -31,7 +32,10 @@ main
     //then we don't run the flickstick calc just use our previous value
 	if(dt > 0) {
 		fix32 angle = rightStickAngle();
+		//fix32 angle = PI/2.0;
 		fix32 magnitude = rightStickMagnitude();
+		//fix32 magnitude = 0.0;
+		
 		
 
 		
@@ -43,9 +47,18 @@ main
 		flickYaw = (flickAmount * flickMult);	  
 	}
 	
-	fix32 newZ = get_actual(GYRO_1_Z) + flickYaw;
+	//TODO: might need to compensate for accel as well
+	fix32 userGyroX = get_actual(GYRO_1_X) * gyroMult * naturalSensitivity;
+	fix32 userGyroY = get_actual(GYRO_1_Y) * gyroMult * naturalSensitivity;
+	
+	set_val(GYRO_1_X, userGyroX);
+	set_val(GYRO_1_Y, userGyroY);
+	
+	fix32 userGyroZ = get_actual(GYRO_1_Z) * gyroMult * naturalSensitivity;
+	fix32 newZ = userGyroZ + flickYaw;
 	set_val(GYRO_1_Z, newZ);
 	//set_val(GYRO_1_Z, flickYaw);
+	
 
 	
 	
@@ -55,9 +68,10 @@ main
 	}
 }
 
+//do a 360 @ +5 sens
 combo Spin 
 {
-	set_val(GYRO_1_Z, 65.9);
+	set_val(GYRO_1_Z, 60.0);
 	set_val(GYRO_1_Y, 0);
 	set_val(GYRO_1_X, 0);
 	wait(200);
