@@ -10,4 +10,14 @@ fix32 naturalSensitivity = 2.6;
 //fine tuned at +5 sens
 fix32 flickMult = 1900.0;
 
+//plus or minus number of degrees to snap to the forward (0) angle when initializing the flick
+fix32 forwardSnapAngleDegrees = 20.0;
+
+fix32 flickThresholdMag = 90.0;
+uint32 flickTimeMs = 100;
+
+fix32 turnSmoothThreshold = 0.1;
+
+uint32 flickCooldownWindow = 50;
+
 #endif
