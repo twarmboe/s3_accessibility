@@ -22,7 +22,7 @@ fix32 rightStickAngle()
 	
 	angle = atan2(rx, -ry);
 	angle = wrap(angle, -PI, PI);
-
+	
 	return angle;
 }
 
@@ -35,7 +35,7 @@ fix32 rightStickMagnitude()
 	rx = get_actual(SWITCH_RX);
 	ry = get_actual(SWITCH_RY);
 	magnitude = sqrt(sq(rx) + sq(ry));
-
+	
 	return clamp(magnitude, 0.0, 100.0);
 }
 

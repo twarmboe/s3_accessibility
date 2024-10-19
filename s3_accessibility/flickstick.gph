@@ -24,9 +24,20 @@ fix32 forwardSnapAngleRadians = deg2rad(forwardSnapAngleDegrees);
 //keep track of our last complete flick to avoid accidental double flicking bug
 uint32 lastFlickEnd = 0;
 
+uint32 lastR3 = 0;
+
+main 
+{
+	// need to do this here because handleFlickStick is not guaranteed to run on 
+	// the first sample where the right stick is pressed
+	if(event_active(SWITCH_RS)){
+		lastR3 = system_time();
+	}
+}
+
 // should return a yaw change to be added to gyro
 fix32 handleFlickStick(
-    fix32 lastAngle, 
+	fix32 lastAngle, 
 	fix32 lastMagnitude, 
 	fix32 currentAngle,
 	fix32 currentMagnitude,
@@ -34,17 +45,24 @@ fix32 handleFlickStick(
 {
 	fix32 result = 0.0;
 	
+	//prevent phantom flicks
 	bool flickOffCooldown = (system_time() - lastFlickEnd) > flickCooldownWindow;
+	
+	//prevent accidental flicks when using special
+	bool r3NotBlockingFlick = (system_time() - lastR3) > r3FlickDisableWindow;
 		
 	//need to decide if a flick is starting
-	if(flickOffCooldown && currentMagnitude >= flickThresholdMag){
+	if( flickOffCooldown 
+	    && r3NotBlockingFlick 
+	    && currentMagnitude >= flickThresholdMag ) 
+	{
 		if(lastMagnitude < flickThresholdMag) {
 			//flick has been started
 			flickProgress = 0; //reset flick timer
 			
 			//check if we're within our snapping angle
 			if(currentAngle < forwardSnapAngleRadians && 
-			    currentAngle > -forwardSnapAngleRadians) {
+			   currentAngle > -forwardSnapAngleRadians) {
 				
 				//snap to forward
 				flickSize = 0.0;
@@ -58,7 +76,7 @@ fix32 handleFlickStick(
 			
 			result += getTieredSmoothedStickRotation(angleChange, turnSmoothThreshold / 2.0, turnSmoothThreshold);
 		}
-	} else if(flickOffCooldown) {
+	} else if(flickOffCooldown && r3NotBlockingFlick) {
 		//turn cleanup
 		if(lastMagnitude >= flickThresholdMag) {
 			lastFlickEnd = system_time();
@@ -71,19 +89,19 @@ fix32 handleFlickStick(
 	uint32 lastFlickProgress = flickProgress;
 	if(lastFlickProgress < flickTimeMs) {
 		flickProgress = min(flickProgress + deltaTimeMs, flickTimeMs);
-			
+		
 		// want to get this in the range between 0.0 and 1.0
 		fix32 lastPerOne = ((fix32)lastFlickProgress) / ((fix32)flickTimeMs);
 		fix32 currentPerOne = ((fix32)flickProgress) / ((fix32)flickTimeMs);
-			
+		
 		// stay within 0.0 to 1.0 but push closer to 1.0
 		fix32 warpedLastPerOne = warpEaseOut(lastPerOne);
 		fix32 warpedCurrentPerOne = warpEaseOut(currentPerOne);
-			
+		
 		// use the difference between last sample and this sample
 		result += (warpedCurrentPerOne - warpedLastPerOne) * flickSize;	
 	}
-		
+	
 	return result;
 }
 
@@ -115,9 +133,9 @@ fix32 getTieredSmoothedStickRotation(fix32 input,
                                      fix32 threshold1, 
                                      fix32 threshold2) 
 {
-    fix32 inputMagnitude = abs(input);
-    fix32 directWeight = (inputMagnitude - threshold1) / (threshold2 - threshold1);
-    directWeight = clamp(directWeight, 0.0, 1.0);
+	fix32 inputMagnitude = abs(input);
+	fix32 directWeight = (inputMagnitude - threshold1) / (threshold2 - threshold1);
+	directWeight = clamp(directWeight, 0.0, 1.0);
 	
 	return getDirectStickRotation(input * directWeight + getSmoothedStickRotation(input * (1.0 - directWeight)));
 }

@@ -18,6 +18,10 @@ uint32 flickTimeMs = 100;
 
 fix32 turnSmoothThreshold = 0.1;
 
+//in ms how long after a flick before we can flick again
 uint32 flickCooldownWindow = 50;
+
+//in ms how long after an R3 input do we block flicks
+uint32 r3FlickDisableWindow = 250;
 
 #endif
