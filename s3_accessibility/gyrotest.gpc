@@ -10,20 +10,23 @@ fix32 lastMagnitude = 0.0;
 
 fix32 flickYaw = 0.0;
 
+fix32 normalizedAccX = 0.0;
+fix32 normalizedAccY = 0.0;
+fix32 normalizedAccZ = 0.0;
+
 main
 {
 	
 	blockRightStick();
 	
-	//force xhair lol
-	//set_val(BUTTON_5, 100.0);
+	fix32 accX = get_val(ACCEL_1_X);
+	fix32 accY = get_val(ACCEL_1_Y);
+	fix32 accZ = get_val(ACCEL_1_Z);
+	fix32 accMag = sqrt(sq(accX) + sq(accY) + sq(accZ));
 	
-	//set_val(GYRO_1_X, 0.0);
-	//set_val(GYRO_1_Y, 0.0);
-	//set_val(ACCEL_1_X, -0.25);
-	//set_val(ACCEL_1_X, 0.0);
-	//set_val(ACCEL_1_Y, 0.0);
-	//set_val(ACCEL_1_Z, -24.65);
+	normalizedAccX = -accX/accMag;
+	normalizedAccY = -accY/accMag;
+	normalizedAccZ = -accZ/accMag;
 	
 	
 	uint32 dt = elapsed_time();
@@ -46,22 +49,25 @@ main
 		flickYaw = (flickAmount * flickMult);	  
 	}
 	
-	//TODO: might need to compensate for accel as well
+	//apply our flick based on the normalized accelerometer
 	fix32 userGyroX = get_actual(GYRO_1_X) * gyroMult * naturalSensitivity;
-	fix32 userGyroY = get_actual(GYRO_1_Y) * gyroMult * naturalSensitivity;
+	fix32 newX = userGyroX + (flickYaw * normalizedAccX);
+	set_val(GYRO_1_X, newX);
 	
-	set_val(GYRO_1_X, userGyroX);
-	set_val(GYRO_1_Y, userGyroY);
+	fix32 userGyroY = get_actual(GYRO_1_Y) * gyroMult * naturalSensitivity;
+	fix32 newY = userGyroY + (flickYaw * normalizedAccY);
+	set_val(GYRO_1_Y, newY);
 	
 	fix32 userGyroZ = get_actual(GYRO_1_Z) * gyroMult * naturalSensitivity;
-	fix32 newZ = userGyroZ + flickYaw;
+	fix32 newZ = userGyroZ + (flickYaw * normalizedAccZ);
 	set_val(GYRO_1_Z, newZ);
+	
 	//set_val(GYRO_1_Z, flickYaw);
 	
 	//dumb 360 lol
-	if(event_active(BUTTON_15)){
-		combo_run(Spin);
-	}
+	//if(event_active(BUTTON_15)){
+	//	combo_run(Spin);
+	//}
 	
 	//dumb bamboo 360 lol
 	//if(event_release(BUTTON_5)){
@@ -72,9 +78,9 @@ main
 //do a 360 @ +5 sens
 combo Spin 
 {
-	set_val(GYRO_1_Z, 60.0);
-	set_val(GYRO_1_Y, 0);
-	set_val(GYRO_1_X, 0);
+	set_val(GYRO_1_X, normalizedAccX * 60.0);
+	set_val(GYRO_1_Y, normalizedAccY * 60.0);
+	set_val(GYRO_1_Z, normalizedAccZ * 60.0);
 	wait(200);
 }
 
@@ -82,14 +88,14 @@ combo Spin
 combo ShootSpin 
 {
 	wait(20);
-	set_val(GYRO_1_Z, 60.0);
-	set_val(GYRO_1_Y, 0);
-	set_val(GYRO_1_X, 0);
+	set_val(GYRO_1_X, normalizedAccX * 60.0);
+	set_val(GYRO_1_Y, normalizedAccY * 60.0);
+	set_val(GYRO_1_Z, normalizedAccZ * 60.0);
 	wait(100);
 	set_val(BUTTON_5, 100.0);
-		set_val(GYRO_1_Z, 60.0);
-	set_val(GYRO_1_Y, 0);
-	set_val(GYRO_1_X, 0);
+	set_val(GYRO_1_X, normalizedAccX * 60.0);
+	set_val(GYRO_1_Y, normalizedAccY * 60.0);
+	set_val(GYRO_1_Z, normalizedAccZ * 60.0);
 	wait(100);
 	set_val(BUTTON_5, 100.0);
 	wait(50);
