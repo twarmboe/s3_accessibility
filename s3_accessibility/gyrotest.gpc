@@ -35,11 +35,7 @@ main
     //then we don't run the flickstick calc just use our previous value
 	if(dt > 0) {
 		fix32 angle = rightStickAngle();
-		//fix32 angle = PI/2.0;
 		fix32 magnitude = rightStickMagnitude();
-		//fix32 magnitude = 0.0;
-		
-		
 		
 		fix32 flickAmount = handleFlickStick(lastAngle, lastMagnitude, angle, magnitude, dt);
 		
@@ -61,8 +57,6 @@ main
 	fix32 userGyroZ = get_actual(GYRO_1_Z) * gyroMult * naturalSensitivity;
 	fix32 newZ = userGyroZ + (flickYaw * normalizedAccZ);
 	set_val(GYRO_1_Z, newZ);
-	
-	//set_val(GYRO_1_Z, flickYaw);
 	
 	//dumb 360 lol
 	//if(event_active(BUTTON_15)){
