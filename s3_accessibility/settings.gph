@@ -11,7 +11,7 @@ byteoffset = 0
 bitsize = 1
 bitoffset = 0
 control = checkbox
-default = 0
+default = 1
 item = Enable Rumble
 
 
@@ -186,7 +186,7 @@ uint16 r3FlickDisableWindow = 250;
 void initConstants()
 {
 	pmem_load();
-	rumbleOff = pmem_read(0) & 0b1;
+	rumbleOff = !(pmem_read(0) & 0b1);
 	booyahSwap = (pmem_read(0) >> 1) & 0b1;
 	booyahTurbo = (pmem_read(0) >> 2) & 0b1;
 	flickStickEnabled = (pmem_read(0) >> 3) & 0b1;
