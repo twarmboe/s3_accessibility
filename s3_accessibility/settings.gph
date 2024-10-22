@@ -1,6 +1,165 @@
 #ifndef SETTINGS_GPH_
 #define SETTINGS_GPH_
 
+
+/***
+<cfgdesc>
+
+[RUMBLE OPTIONS]
+shortdesc = Enable the controller rumble/vibration/force feedback feature
+byteoffset = 0
+bitsize = 1
+bitoffset = 0
+control = checkbox
+default = 0
+item = Enable Rumble
+
+
+
+[BOOYAH OPTIONS]
+shortdesc = Swap the L and d-pad down inputs (to make it easier to booyah)
+byteoffset = 0
+bitsize = 1
+bitoffset = 1
+control = checkbox
+default = 0
+item = Swap L and D-Pad Down
+
+[SPACE 0]
+group = TRUE
+control = space
+default = 10
+
+[TURBO BOOYAH]
+group = TRUE
+shortdesc = Make the booyah button a turbo button (rapid entry while holding down the button)
+byteoffset = 0
+bitsize = 1
+bitoffset = 2
+control = checkbox
+default = 0
+item = Turbo Booyah
+
+
+
+
+[FLICK STICK]
+collapsible = 1
+shortdesc = Enable Flick Stick for the right stick
+byteoffset = 0
+bitsize = 1
+bitoffset = 3
+control = checkbox
+default = 0
+item = Enable Flick Stick
+
+[SPACE 1]
+group = TRUE
+control = space
+default = 10
+
+[FLICK TIME]
+group = TRUE
+shortdesc = Time in milliseconds that it takes for a flick to complete
+byteoffset = 2
+bitsize = 16
+bitoffset = 0
+control = spinbox
+default = 100
+minimum = 100
+maximum = 2000
+step = 1
+item = Flick Time (Ms)
+
+
+
+[SPACE 2]
+group = TRUE
+control = space
+default = 10
+
+[FORWARD SNAP ANGLE]
+group = TRUE
+shortdesc = Forward snap angle in degrees for Flick Stick (all inputs within this angle from up on the stick are treated as not being a flick)
+byteoffset = 1
+bitsize = 8
+bitoffset = 0
+control = spinbox
+default = 10
+minimum = 0
+maximum = 45
+step = 1
+item = Forward Snap Angle
+
+[SPACE 3]
+group = TRUE
+control = space
+default = 10
+
+[FLICK THRESHOLD]
+group = TRUE
+shortdesc = Percentage of stick displacement required before a flick occurs
+byteoffset = 4
+bitsize = 8
+bitoffset = 0
+control = spinbox
+default = 90
+minimum = 50
+maximum = 99
+step = 1
+item = Flick Threshold
+
+[SPACE 4]
+group = TRUE
+control = space
+default = 10
+
+[SPECIAL FLICK DISABLE WINDOW]
+group = TRUE
+shortdesc = Flick stick will be disabled within this value in milliseconds of using your special. This is used to prevent accidental flicks.
+byteoffset = 5
+bitsize = 16
+bitoffset = 0
+control = spinbox
+default = 250
+minimum = 0
+maximum = 500
+step = 1
+item = Special Flick Disable Window
+
+[SPACE 5]
+group = TRUE
+control = space
+default = 10
+
+[FLICK SENSITIVITY]
+group = TRUE
+shortdesc = How sensitive flick stick is (only adjust if flick stick angles are consistently off; make sure you're on +5 motion sensitivity in game first)
+byteoffset = 7
+bitsize = 32
+bitoffset = 0
+control = spinboxf
+default = 190000
+minimum = 100
+maximum = 3276799
+step = 100
+decimals = 2
+item = Flick Sensitivity
+
+
+
+
+
+
+</cfgdesc>
+
+***/
+
+bool rumbleOff = FALSE;
+bool booyahSwap = FALSE;
+bool booyahTurbo = FALSE;
+bool flickStickEnabled = FALSE;
+
 //fine tuned at +5 sens
 fix32 gyroMult = .66;
 
@@ -14,7 +173,7 @@ fix32 flickMult = 1900.0;
 fix32 forwardSnapAngleDegrees = 20.0;
 
 fix32 flickThresholdMag = 90.0;
-uint32 flickTimeMs = 100;
+uint16 flickTimeMs = 100;
 
 fix32 turnSmoothThreshold = 0.1;
 
@@ -22,6 +181,32 @@ fix32 turnSmoothThreshold = 0.1;
 uint32 flickCooldownWindow = 50;
 
 //in ms how long after an R3 input do we block flicks
-uint32 r3FlickDisableWindow = 250;
+uint16 r3FlickDisableWindow = 250;
+
+void initConstants()
+{
+	pmem_load();
+	rumbleOff = pmem_read(0) & 0b1;
+	booyahSwap = (pmem_read(0) >> 1) & 0b1;
+	booyahTurbo = (pmem_read(0) >> 2) & 0b1;
+	flickStickEnabled = (pmem_read(0) >> 3) & 0b1;
+	
+	pmem_read(2, &flickTimeMs);
+	
+	//stored as uint8 but we want fix32
+	uint8 angleInt = pmem_read(1);
+	forwardSnapAngleDegrees = (fix32) angleInt;
+	
+	//stored as unit8 but we want fix32
+	uint8 flickThresholdInt = pmem_read(4);
+	flickThresholdMag = (fix32) flickThresholdInt;
+	
+	pmem_read(5, &r3FlickDisableWindow);
+	
+	pmem_read(7, &flickMult);
+	
+	printf("flick mult: %f", flickMult);
+	
+}
 
 #endif

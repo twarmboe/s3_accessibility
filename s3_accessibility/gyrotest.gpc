@@ -14,9 +14,28 @@ fix32 normalizedAccX = 0.0;
 fix32 normalizedAccY = 0.0;
 fix32 normalizedAccZ = 0.0;
 
+init {
+	initConstants();
+	
+	if(booyahSwap){
+		remapper_swap( BUTTON_7 , BUTTON_11 );
+	}
+	
+	if(rumbleOff){
+		ffb_set(FFB_1, 0.0, 100);
+		ffb_set(FFB_2, 0.0, 100);
+		ffb_set(FFB_3, 0.0, 100);
+		ffb_set(FFB_4, 0.0, 100);
+	}
+	
+}
+
 main
 {
-	
+	if(booyahTurbo){
+		if(is_active(BUTTON_11)) combo_run(turboBooyah);
+		if(event_release(BUTTON_11)) combo_stop(turboBooyah);
+	}
 	blockRightStick();
 	
 	fix32 accX = get_val(ACCEL_1_X);
@@ -67,6 +86,14 @@ main
 	//if(event_release(BUTTON_5)){
 	//	combo_run(ShootSpin);
 	//}
+}
+
+combo turboBooyah
+{
+	set_val(BUTTON_11, 100);
+	wait(40);
+	set_val(BUTTON_11, 0);
+	wait(40);
 }
 
 //do a 360 @ +5 sens
