@@ -2,7 +2,7 @@
 
 ### About this project
 
-This project is aimed at providing additional accessibility options for the Splatoon 3 game.
+This project is aimed at providing additional accessibility options for the Splatoon 3 game. This project is not affiliated with Nintendo or ConsoleTuner in any way.
 
 ### Current features
 
