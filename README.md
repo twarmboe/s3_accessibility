@@ -22,7 +22,9 @@ This project is aimed at providing additional accessibility options for the Spla
 
 This project is built for a [Titan Two](https://www.consoletuner.com/products/titan-two/) adapter.
 
-Controllers tested so far:
+A Switch and copy of the game.
+
+A controller. Controllers tested so far:
 
 - Dualsense
 
