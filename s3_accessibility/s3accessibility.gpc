@@ -4,12 +4,11 @@
 #include "rstick.gph"
 #include "flickstick.gph"
 #include "settings.gph"
+#include "io_sync.gph"
 #include <switch.gph>
 
 fix32 lastAngle = 0.0;
 fix32 lastMagnitude = 0.0;
-
-fix32 flickYaw = 0.0;
 
 fix32 normalizedAccX = 0.0;
 fix32 normalizedAccY = 0.0;
@@ -31,16 +30,38 @@ init {
 	
 }
 
+// these reset every time we output data to console
+fix32 gyroAccumulatorX = 0.0;
+fix32 gyroAccumulatorY = 0.0;
+fix32 gyroAccumulatorZ = 0.0;
+fix32 flickYawAccumulator = 0.0;
+
 main
 {
+	//set_val(SWITCH_ZR, 100.0);
+	updateIO();	
+	blockRightStick();
+	
+	if(get_val(SWITCH_ZR) > zrThresholdPercentage){
+		set_val(SWITCH_ZR, 100.0);
+	} else {
+		set_val(SWITCH_ZR, 0.0);
+	}
+	
+	if(outputWasProcessed){
+		//reset our accumulators
+		gyroAccumulatorX = 0.0;
+		gyroAccumulatorY = 0.0;
+		gyroAccumulatorZ = 0.0;
+		flickYawAccumulator = 0.0;		
+	}
+	
 	if(booyahTurbo){
 		if(is_active(SWITCH_DOWN)) combo_run(turboBooyah);
 		if(event_release(SWITCH_DOWN)) combo_stop(turboBooyah);
 	}
 	
 	if(event_active(SWITCH_LS)) combo_run(JumpToBase);
-	
-	blockRightStick();
 	
 	fix32 accX = get_val(ACCEL_1_X);
 	fix32 accY = get_val(ACCEL_1_Y);
@@ -65,20 +86,42 @@ main
 		lastAngle = angle;
 		lastMagnitude = magnitude;
 	
-		flickYaw = (flickAmount * flickMult);	  
+		flickYawAccumulator += (flickAmount * flickMult);	  
 	}
 	
 	//apply our flick based on the normalized accelerometer
-	fix32 userGyroX = get_actual(GYRO_1_X) * gyroMult * naturalSensitivity;
-	fix32 newX = userGyroX + (flickYaw * normalizedAccX);
+	if(inputIsNew){
+		gyroAccumulatorX += get_actual(GYRO_1_X) * gyroMult * naturalSensitivity;
+		gyroAccumulatorY += get_actual(GYRO_1_Y) * gyroMult * naturalSensitivity;
+		gyroAccumulatorZ += get_actual(GYRO_1_Z) * gyroMult * naturalSensitivity;
+	}
+
+/*	
+	//TODO: temp for testing
+	gyroAccumulatorX = 0.0;
+	gyroAccumulatorY = 0.0;
+	gyroAccumulatorZ = 0.0;
+	*/
+	
+	fix32 avgX = get_actual(GYRO_1_X);
+	if(inputsSinceLast > 0){
+		avgX = gyroAccumulatorX / (fix32) inputsSinceLast;
+	}
+	fix32 newX = gyroAccumulatorX + (flickYawAccumulator * normalizedAccX);
 	set_val(GYRO_1_X, newX);
 	
-	fix32 userGyroY = get_actual(GYRO_1_Y) * gyroMult * naturalSensitivity;
-	fix32 newY = userGyroY + (flickYaw * normalizedAccY);
+	fix32 avgY = get_actual(GYRO_1_Y);
+	if(inputsSinceLast > 0){
+		avgY = gyroAccumulatorY / (fix32) inputsSinceLast;
+	}
+	fix32 newY = gyroAccumulatorY + (flickYawAccumulator * normalizedAccY);
 	set_val(GYRO_1_Y, newY);
 	
-	fix32 userGyroZ = get_actual(GYRO_1_Z) * gyroMult * naturalSensitivity;
-	fix32 newZ = userGyroZ + (flickYaw * normalizedAccZ);
+	fix32 avgZ = get_actual(GYRO_1_Z);
+	if(inputsSinceLast > 0){
+		avgZ = gyroAccumulatorZ / (fix32) inputsSinceLast;
+	}
+	fix32 newZ = gyroAccumulatorZ + (flickYawAccumulator * normalizedAccZ);
 	set_val(GYRO_1_Z, newZ);
 	
 	//dumb 360 lol

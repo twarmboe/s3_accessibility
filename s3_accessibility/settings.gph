@@ -139,8 +139,8 @@ byteoffset = 7
 bitsize = 32
 bitoffset = 0
 control = spinboxf
-default = 190000
-minimum = 100
+default = 23500
+minimum = 1
 maximum = 3276799
 step = 100
 decimals = 2
@@ -161,10 +161,12 @@ bool booyahTurbo = FALSE;
 bool flickStickEnabled = FALSE;
 
 //fine tuned at +5 sens
-fix32 gyroMult = .66;
+fix32 gyroMult = .084;
+//fix32 gyroMult = 1.0;
 
 //user preference on the natural scale 2 means 2 degrees in game per degree on controller
-fix32 naturalSensitivity = 2.6;
+fix32 naturalSensitivity = 2.8;
+//fix32 naturalSensitivity = 1.0;
 
 //fine tuned at +5 sens
 fix32 flickMult = 1900.0;
@@ -182,6 +184,8 @@ uint32 flickCooldownWindow = 50;
 
 //in ms how long after an R3 input do we block flicks
 uint16 r3FlickDisableWindow = 250;
+
+fix32 zrThresholdPercentage = 50.0;
 
 void initConstants()
 {

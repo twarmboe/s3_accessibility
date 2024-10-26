@@ -1,0 +1,54 @@
+#ifndef IOSYNC_GPH_
+#define IOSYNC_GPH_
+
+#include "safeprint.gph"
+#include <switch.gph>
+
+uint32 lastOTime = 0;
+
+fix32 lastGX = 0.0;
+fix32 lastGY = 0.0;
+fix32 lastGZ = 0.0;
+fix32 lastAX = 0.0;
+fix32 lastAY = 0.0;
+fix32 lastAZ = 0.0;
+
+bool outputWasProcessed = TRUE;
+bool inputIsNew = TRUE;
+int8 inputsSinceLast = 0;
+
+void updateIO() {
+	uint32 oTime = output_time();
+	
+	fix32 gX = get_val(GYRO_1_X);
+	fix32 gY = get_val(GYRO_1_Y);
+	fix32 gZ = get_val(GYRO_1_Z);
+	fix32 aX = get_val(ACCEL_1_X);
+	fix32 aY = get_val(ACCEL_1_Y);
+	fix32 aZ = get_val(ACCEL_1_Z);	
+	
+	outputWasProcessed = lastOTime > oTime;
+	if(outputWasProcessed){
+		inputsSinceLast = 0;
+	}
+	
+	inputIsNew = gX != lastGX ||
+				 gY != lastGY ||
+				 gZ != lastGZ ||
+				 aX != lastAX ||
+				 aY != lastAY ||
+				 aZ != lastAZ;
+	if(inputIsNew){
+		inputsSinceLast++;
+	}
+	
+	lastOTime = oTime;
+	lastGX = gX;
+	lastGY = gY;
+	lastGZ = gZ;
+	lastAX = aX;
+	lastAY = aY;
+	lastAZ = aZ;
+}
+
+#endif
