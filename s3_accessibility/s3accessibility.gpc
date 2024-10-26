@@ -4,6 +4,7 @@
 #include "rstick.gph"
 #include "flickstick.gph"
 #include "settings.gph"
+#include <switch.gph>
 
 fix32 lastAngle = 0.0;
 fix32 lastMagnitude = 0.0;
@@ -18,7 +19,7 @@ init {
 	initConstants();
 	
 	if(booyahSwap){
-		remapper_swap( BUTTON_7 , BUTTON_11 );
+		remapper_swap( SWITCH_L , SWITCH_DOWN );
 	}
 	
 	if(rumbleOff){
@@ -33,9 +34,12 @@ init {
 main
 {
 	if(booyahTurbo){
-		if(is_active(BUTTON_11)) combo_run(turboBooyah);
-		if(event_release(BUTTON_11)) combo_stop(turboBooyah);
+		if(is_active(SWITCH_DOWN)) combo_run(turboBooyah);
+		if(event_release(SWITCH_DOWN)) combo_stop(turboBooyah);
 	}
+	
+	if(event_active(SWITCH_LS)) combo_run(JumpToBase);
+	
 	blockRightStick();
 	
 	fix32 accX = get_val(ACCEL_1_X);
@@ -90,10 +94,23 @@ main
 
 combo turboBooyah
 {
-	set_val(BUTTON_11, 100);
+	set_val(SWITCH_DOWN, 100);
 	wait(40);
-	set_val(BUTTON_11, 0);
+	set_val(SWITCH_DOWN, 0);
 	wait(40);
+}
+
+combo JumpToBase
+{
+	set_val(SWITCH_X, 100);
+	wait(50);
+	set_val(SWITCH_DOWN, 100);
+	wait(50);
+	set_val(SWITCH_A, 100);
+	wait(50);
+	set_val(SWITCH_X, 0);
+	set_val(SWITCH_DOWN, 0);
+	set_val(SWITCH_A, 0);
 }
 
 //do a 360 @ +5 sens
@@ -113,13 +130,13 @@ combo ShootSpin
 	set_val(GYRO_1_Y, normalizedAccY * 60.0);
 	set_val(GYRO_1_Z, normalizedAccZ * 60.0);
 	wait(100);
-	set_val(BUTTON_5, 100.0);
+	set_val(SWITCH_ZR, 100.0);
 	set_val(GYRO_1_X, normalizedAccX * 60.0);
 	set_val(GYRO_1_Y, normalizedAccY * 60.0);
 	set_val(GYRO_1_Z, normalizedAccZ * 60.0);
 	wait(100);
-	set_val(BUTTON_5, 100.0);
+	set_val(SWITCH_ZR, 100.0);
 	wait(50);
-	set_val(BUTTON_5, 0);
+	set_val(SWITCH_ZR, 0);
 	wait(20);
 }
