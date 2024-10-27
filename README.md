@@ -12,7 +12,7 @@ This project is aimed at providing additional accessibility options for the Spla
 
 ### Planned features
 
-- Adjustable gyro sensitivity on the natural sensitivity scale (where N on that scale means that for every 1º of controller movement, Nº of camera movement will happen in game)
+- Adjustable gyro sensitivity on the natural sensitivity scale (where N on that scale means that for every 1º of controller rotation, Nº of camera rotation will happen in game)
 - A more expansive gyro modifier button (Gyro off, Gyro on, Gyro toggle, Native reset camera, reset camera pitch only, invert gyro) similar to Fortnite's gyro options
 - Expanded sensitivity options like acceleration and vertical/horizontal ratio
 - An option for regular horizontal+vertical stick *while* gyro is enabled (normally vertical stick is disabled while gyro is enabled)
