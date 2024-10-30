@@ -39,8 +39,13 @@ fix32 flickYawAccumulator = 0.0;
 main
 {
 	//set_val(SWITCH_ZR, 100.0);
-	updateIO();	
-	blockRightStick();
+	
+	//update values used for synchronization
+	updateIO();
+	
+	if(flickStickEnabled){
+		blockRightStick();
+	}
 	
 	if(get_val(SWITCH_ZR) > zrThresholdPercentage){
 		set_val(SWITCH_ZR, 100.0);
@@ -76,9 +81,8 @@ main
 	
 	uint32 dt = elapsed_time();
 	
-	//hack for now, if we can't tell how much time has elapsed
-    //then we don't run the flickstick calc just use our previous value
-	if(dt > 0) {
+	//can only update flickstick values if measurable time has elapsed
+	if(flickStickEnabled && dt > 0) {
 		fix32 angle = rightStickAngle();
 		fix32 magnitude = rightStickMagnitude();
 		
@@ -90,39 +94,36 @@ main
 		flickYawAccumulator += (flickAmount * flickMult);	  
 	}
 	
-	//apply our flick based on the normalized accelerometer
+	//add any new inputs to be averaged until next output
 	if(inputIsNew){
-		gyroAccumulatorX += get_actual(GYRO_1_X) * gyroMult * naturalSensitivity;
-		gyroAccumulatorY += get_actual(GYRO_1_Y) * gyroMult * naturalSensitivity;
-		gyroAccumulatorZ += get_actual(GYRO_1_Z) * gyroMult * naturalSensitivity;
+		gyroAccumulatorX += get_actual(GYRO_1_X) * gyroMult;
+		gyroAccumulatorY += get_actual(GYRO_1_Y) * gyroMult;
+		gyroAccumulatorZ += get_actual(GYRO_1_Z) * gyroMult;
 	}
 
-/*	
-	//TODO: temp for testing
-	gyroAccumulatorX = 0.0;
-	gyroAccumulatorY = 0.0;
-	gyroAccumulatorZ = 0.0;
-	*/
 	
-	fix32 avgX = get_actual(GYRO_1_X);
+	//average our gyro data and apply our flick based on the normalized accelerometer
+	fix32 avgX = get_actual(GYRO_1_X) * gyroMult;
 	if(inputsSinceLast > 0){
 		avgX = gyroAccumulatorX / (fix32) inputsSinceLast;
 	}
-	fix32 newX = gyroAccumulatorX + (flickYawAccumulator * normalizedAccX);
+	
+	fix32 newX = avgX + (flickYawAccumulator * normalizedAccX);
 	set_val(GYRO_1_X, newX);
 	
-	fix32 avgY = get_actual(GYRO_1_Y);
+	fix32 avgY = get_actual(GYRO_1_Y) * gyroMult;
+	
 	if(inputsSinceLast > 0){
 		avgY = gyroAccumulatorY / (fix32) inputsSinceLast;
 	}
-	fix32 newY = gyroAccumulatorY + (flickYawAccumulator * normalizedAccY);
+	fix32 newY = avgY + (flickYawAccumulator * normalizedAccY);
 	set_val(GYRO_1_Y, newY);
 	
-	fix32 avgZ = get_actual(GYRO_1_Z);
+	fix32 avgZ = get_actual(GYRO_1_Z) * gyroMult;
 	if(inputsSinceLast > 0){
 		avgZ = gyroAccumulatorZ / (fix32) inputsSinceLast;
 	}
-	fix32 newZ = gyroAccumulatorZ + (flickYawAccumulator * normalizedAccZ);
+	fix32 newZ = avgZ + (flickYawAccumulator * normalizedAccZ);
 	set_val(GYRO_1_Z, newZ);
 	
 	//dumb 360 lol

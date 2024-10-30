@@ -5,9 +5,58 @@
 /***
 <cfgdesc>
 
+
+[GYRO OPTIONS]
+shortdesc = Controller Sensitivity Presets
+control = config
+item = Pro Controller:#00:00004F50
+item = DualSense:#00:0000A900
+
+[SPACE 0]
+group = TRUE
+control = space
+default = 10
+
+[GYRO SENSITIVITY]
+group = TRUE
+shortdesc = How much to adjust the gyro sensitivity (most people should use the buttons above and set natural sensitivity instead)
+byteoffset = 0
+bitsize = 32
+bitoffset = 0
+control = spinboxf
+default = 310
+minimum = 10
+maximum = 3276799
+step = 1
+decimals = 3
+item = Gyro Sensitivity
+
+[SPACE 1]
+group = TRUE
+control = space
+default = 10
+
+[NATURAL SENSITIVITY]
+group = TRUE
+shortdesc = Natural Sensitivity multiplier
+byteoffset = 4
+bitsize = 32
+bitoffset = 0
+control = spinboxf
+default = 280
+minimum = 1
+maximum = 10000
+step = 10
+decimals = 2
+item = Natural Sensitivity
+
+
+
+
+
 [RUMBLE OPTIONS]
 shortdesc = Enable the controller rumble/vibration/force feedback feature
-byteoffset = 0
+byteoffset = 8
 bitsize = 1
 bitoffset = 0
 control = checkbox
@@ -18,14 +67,14 @@ item = Enable Rumble
 
 [BOOYAH OPTIONS]
 shortdesc = Swap the L and d-pad down inputs (to make it easier to booyah)
-byteoffset = 0
+byteoffset = 8
 bitsize = 1
 bitoffset = 1
 control = checkbox
 default = 0
 item = Swap L and D-Pad Down
 
-[SPACE 0]
+[SPACE 2]
 group = TRUE
 control = space
 default = 10
@@ -33,7 +82,7 @@ default = 10
 [TURBO BOOYAH]
 group = TRUE
 shortdesc = Make the booyah button a turbo button (rapid entry while holding down the button)
-byteoffset = 0
+byteoffset = 8
 bitsize = 1
 bitoffset = 2
 control = checkbox
@@ -46,14 +95,14 @@ item = Turbo Booyah
 [FLICK STICK]
 collapsible = 1
 shortdesc = Enable Flick Stick for the right stick
-byteoffset = 0
+byteoffset = 8
 bitsize = 1
 bitoffset = 3
 control = checkbox
 default = 0
 item = Enable Flick Stick
 
-[SPACE 1]
+[SPACE 3]
 group = TRUE
 control = space
 default = 10
@@ -61,7 +110,7 @@ default = 10
 [FLICK TIME]
 group = TRUE
 shortdesc = Time in milliseconds that it takes for a flick to complete
-byteoffset = 2
+byteoffset = 9
 bitsize = 16
 bitoffset = 0
 control = spinbox
@@ -73,7 +122,7 @@ item = Flick Time (Ms)
 
 
 
-[SPACE 2]
+[SPACE 4]
 group = TRUE
 control = space
 default = 10
@@ -81,7 +130,7 @@ default = 10
 [FORWARD SNAP ANGLE]
 group = TRUE
 shortdesc = Forward snap angle in degrees for Flick Stick (all inputs within this angle from up on the stick are treated as not being a flick)
-byteoffset = 1
+byteoffset = 11
 bitsize = 8
 bitoffset = 0
 control = spinbox
@@ -91,7 +140,7 @@ maximum = 45
 step = 1
 item = Forward Snap Angle
 
-[SPACE 3]
+[SPACE 5]
 group = TRUE
 control = space
 default = 10
@@ -99,7 +148,7 @@ default = 10
 [FLICK THRESHOLD]
 group = TRUE
 shortdesc = Percentage of stick displacement required before a flick occurs
-byteoffset = 4
+byteoffset = 12
 bitsize = 8
 bitoffset = 0
 control = spinbox
@@ -109,7 +158,7 @@ maximum = 99
 step = 1
 item = Flick Threshold
 
-[SPACE 4]
+[SPACE 6]
 group = TRUE
 control = space
 default = 10
@@ -117,7 +166,7 @@ default = 10
 [SPECIAL FLICK DISABLE WINDOW]
 group = TRUE
 shortdesc = Flick stick will be disabled within this value in milliseconds of using your special. This is used to prevent accidental flicks.
-byteoffset = 5
+byteoffset = 13
 bitsize = 16
 bitoffset = 0
 control = spinbox
@@ -127,7 +176,7 @@ maximum = 500
 step = 1
 item = Special Flick Disable Window
 
-[SPACE 5]
+[SPACE 7]
 group = TRUE
 control = space
 default = 10
@@ -135,7 +184,7 @@ default = 10
 [FLICK SENSITIVITY]
 group = TRUE
 shortdesc = How sensitive flick stick is (only adjust if flick stick angles are consistently off; make sure you're on +5 motion sensitivity in game first)
-byteoffset = 7
+byteoffset = 15
 bitsize = 32
 bitoffset = 0
 control = spinboxf
@@ -162,12 +211,10 @@ bool flickStickEnabled = FALSE;
 bool superJumpOnLs = TRUE;
 
 //fine tuned at +5 sens
-fix32 gyroMult = .084;
-//fix32 gyroMult = 1.0;
-
-//user preference on the natural scale 2 means 2 degrees in game per degree on controller
-fix32 naturalSensitivity = 2.8;
-//fix32 naturalSensitivity = 1.0;
+//procon 
+//fix32 gyroMult = .31;
+//dualsense
+fix32 gyroMult = .66;
 
 //fine tuned at +5 sens
 fix32 flickMult = 1900.0;
@@ -191,26 +238,30 @@ fix32 zrThresholdPercentage = 50.0;
 void initConstants()
 {
 	pmem_load();
-	rumbleOff = !(pmem_read(0) & 0b1);
-	booyahSwap = (pmem_read(0) >> 1) & 0b1;
-	booyahTurbo = (pmem_read(0) >> 2) & 0b1;
-	flickStickEnabled = (pmem_read(0) >> 3) & 0b1;
 	
-	pmem_read(2, &flickTimeMs);
+	pmem_read(0, &gyroMult);
+	fix32 naturalSens = 0.0;
+	pmem_read(4, &naturalSens);
+	gyroMult *= naturalSens;
+	
+	rumbleOff = !(pmem_read(8) & 0b1);
+	booyahSwap = (pmem_read(8) >> 1) & 0b1;
+	booyahTurbo = (pmem_read(8) >> 2) & 0b1;
+	flickStickEnabled = (pmem_read(8) >> 3) & 0b1;
+	
+	pmem_read(9, &flickTimeMs);
 	
 	//stored as uint8 but we want fix32
-	uint8 angleInt = pmem_read(1);
+	uint8 angleInt = pmem_read(11);
 	forwardSnapAngleDegrees = (fix32) angleInt;
 	
 	//stored as unit8 but we want fix32
-	uint8 flickThresholdInt = pmem_read(4);
+	uint8 flickThresholdInt = pmem_read(12);
 	flickThresholdMag = (fix32) flickThresholdInt;
 	
-	pmem_read(5, &r3FlickDisableWindow);
+	pmem_read(13, &r3FlickDisableWindow);
 	
-	pmem_read(7, &flickMult);
-	
-	printf("flick mult: %f", flickMult);
+	pmem_read(15, &flickMult);
 	
 }
 
