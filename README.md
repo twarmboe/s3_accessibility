@@ -12,7 +12,7 @@ This project is aimed at providing additional accessibility options for the Spla
 
 ### Planned features
 
-- Adjustable gyro sensitivity on the natural sensitivity scale (where N on that scale means that for every 1º of controller movement, Nº of camera movement will happen in game)
+- Adjustable gyro sensitivity on the natural sensitivity scale (where N on that scale means that for every 1º of controller rotation, Nº of camera rotation will happen in game)
 - A more expansive gyro modifier button (Gyro off, Gyro on, Gyro toggle, Native reset camera, reset camera pitch only, invert gyro) similar to Fortnite's gyro options
 - Expanded sensitivity options like acceleration and vertical/horizontal ratio
 - An option for regular horizontal+vertical stick *while* gyro is enabled (normally vertical stick is disabled while gyro is enabled)
@@ -26,7 +26,10 @@ A Switch and copy of the game.
 
 A controller. Controllers tested so far:
 
-- Dualsense
+- Dualsense (Works well!)
+- Dualsense Edge (Doesn't work; will need to do some button remappings since they aren't consistent with the Dualsense)
+- Pro Controller (Doesn't really work at the moment; input is very choppy for some reason)
+- 8bitdo Bluetooth Ultimate (seems like it's defaulting to xinput when wired, might work with the bluetooth adapter or with the beta firmware)
 
 ### Setup
 
