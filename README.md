@@ -26,10 +26,10 @@ A Switch and copy of the game.
 
 A controller. Controllers tested so far:
 
-- Dualsense (Works well!)
-- Dualsense Edge (Doesn't work; will need to do some button remappings since they aren't consistent with the Dualsense)
-- Pro Controller (Works well!)
-- 8bitdo Bluetooth Ultimate (seems like it's defaulting to xinput when wired, might work with the bluetooth adapter or with the beta firmware)
+- ✅ Dualsense (Works well, has a sensitivity preset)
+- ✅ Pro Controller (Works well, has a sensitivity preset)
+- ❌ Dualsense Edge (Doesn't work; will need to do some button remappings since they aren't consistent with the Dualsense)
+- ❌ 8bitdo Bluetooth Ultimate (seems like it's defaulting to xinput when wired, might work with the bluetooth adapter or with the beta firmware)
 
 ### Setup
 
