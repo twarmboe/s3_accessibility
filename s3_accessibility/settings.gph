@@ -159,6 +159,7 @@ bool rumbleOff = FALSE;
 bool booyahSwap = FALSE;
 bool booyahTurbo = FALSE;
 bool flickStickEnabled = FALSE;
+bool superJumpOnLs = TRUE;
 
 //fine tuned at +5 sens
 fix32 gyroMult = .084;

@@ -61,7 +61,8 @@ main
 		if(event_release(SWITCH_DOWN)) combo_stop(turboBooyah);
 	}
 	
-	if(event_active(SWITCH_LS)) combo_run(JumpToBase);
+	
+	if(superJumpOnLs && event_active(SWITCH_LS)) combo_run(JumpToBase);
 	
 	fix32 accX = get_val(ACCEL_1_X);
 	fix32 accY = get_val(ACCEL_1_Y);
