@@ -94,12 +94,20 @@ main
 		lastActiveAcc[2] = normalizedAcc[2];
 		
 	} else if(event_release(SWITCH_Y)) {
-		
 		blockGyro = FALSE;
 		
-		fix32 r[4] = {1.0, 0.0, 0.0, 0.0};
-		Quaternion_rotationBetween(ARG(normalizedAcc), ARG(lastActiveAcc), ARG(r));
-		Quaternion_multiply(ARG(accRotation), ARG(r), ARG(accRotation));
+		if(time_active(SWITCH_Y) <= longPressThreshold){
+			combo_run(CameraReset);
+			//reset to no rotation
+			accRotation[0] = 1.0;
+			accRotation[1] = 0.0;
+			accRotation[2] = 0.0;
+			accRotation[3] = 0.0;
+		} else {
+			fix32 r[4] = {1.0, 0.0, 0.0, 0.0};
+			Quaternion_rotationBetween(ARG(normalizedAcc), ARG(lastActiveAcc), ARG(r));
+			Quaternion_multiply(ARG(accRotation), ARG(r), ARG(accRotation));
+		}
 	}
 	
 	if(is_active(SWITCH_Y)){
@@ -144,40 +152,33 @@ main
 
 	
 	//average our gyro data and apply our flick based on the normalized accelerometer
-	fix32 avgX = get_actual(SWITCH_GYROX) * gyroMult;
+	fix32 avgGyro[3] = {0.0, 0.0, 0.0};
+	avgGyro[0] = get_actual(SWITCH_GYROX) * gyroMult;
+	avgGyro[1] = get_actual(SWITCH_GYROY) * gyroMult;
+	avgGyro[2] = get_actual(SWITCH_GYROZ) * gyroMult;
+	
+	
 	if(inputsSinceLast > 0){
-		avgX = gyroAccumulatorX / (fix32) inputsSinceLast;
-	}
-	if(blockGyro){ 
-		avgX = 0.0; 
+		avgGyro[0] = gyroAccumulatorX / (fix32) inputsSinceLast;
+		avgGyro[1] = gyroAccumulatorY / (fix32) inputsSinceLast;
+		avgGyro[2] = gyroAccumulatorZ / (fix32) inputsSinceLast;
 	}
 	
-	fix32 newX = avgX + (flickYawAccumulator * normalizedAcc[0]);
+	if(blockGyro){ 
+		avgGyro[0] = 0.0;
+		avgGyro[1] = 0.0;
+		avgGyro[2] = 0.0;
+	} else {
+		//rotate based on accelerometer offset
+		Quaternion_rotate(ARG(accRotation), ARG(avgGyro), ARG(avgGyro));
+	}
+	
+	fix32 newX = avgGyro[0] + (flickYawAccumulator * normalizedAcc[0]);
+	fix32 newY = avgGyro[1] + (flickYawAccumulator * normalizedAcc[1]);
+	fix32 newZ = avgGyro[2] + (flickYawAccumulator * normalizedAcc[2]);
+	
 	set_val(SWITCH_GYROX, newX);
-	
-	fix32 avgY = get_actual(SWITCH_GYROY) * gyroMult;
-	
-	if(inputsSinceLast > 0){
-		avgY = gyroAccumulatorY / (fix32) inputsSinceLast;
-	}
-	if(blockGyro){ 
-		avgY = 0.0; 
-	}
-	
-	
-	fix32 newY = avgY + (flickYawAccumulator * normalizedAcc[1]);
 	set_val(SWITCH_GYROY, newY);
-	
-	fix32 avgZ = get_actual(SWITCH_GYROZ) * gyroMult;
-	if(inputsSinceLast > 0){
-		avgZ = gyroAccumulatorZ / (fix32) inputsSinceLast;
-	}
-	if(blockGyro){ 
-		avgZ = 0.0; 
-	}
-	
-	
-	fix32 newZ = avgZ + (flickYawAccumulator * normalizedAcc[2]);
 	set_val(SWITCH_GYROZ, newZ);
 	
 	
@@ -213,6 +214,16 @@ combo JumpToBase
 	set_val(SWITCH_A, 0);
 }
 
+combo CameraReset
+{
+	//allow accel data to catch up before we reset
+	wait(20);
+	set_val(SWITCH_Y, 100);
+	wait(20);
+	set_val(SWITCH_Y, 0);
+}
+
+/*
 //do a 360 @ +5 sens
 combo Spin 
 {
@@ -240,3 +251,4 @@ combo ShootSpin
 	set_val(SWITCH_ZR, 0);
 	wait(20);
 }
+*/
