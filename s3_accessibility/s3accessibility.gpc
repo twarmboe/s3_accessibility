@@ -6,13 +6,15 @@
 #include "settings.gph"
 #include "io_sync.gph"
 #include <switch.gph>
+#include "vector_rotation.gph"
 
 fix32 lastAngle = 0.0;
 fix32 lastMagnitude = 0.0;
 
-fix32 normalizedAccX = 0.0;
-fix32 normalizedAccY = 0.0;
-fix32 normalizedAccZ = 0.0;
+fix32 normalizedAcc[3] = {0.0, 0.0, 0.0};
+
+fix32 lastActiveAcc[3] = {0.0, 0.0, -25.0};
+fix32 accRotation[4] = {1.0, 0.0, 0.0, 0.0}; // start with identity q
 
 init {
 	initConstants();
@@ -36,8 +38,12 @@ fix32 gyroAccumulatorY = 0.0;
 fix32 gyroAccumulatorZ = 0.0;
 fix32 flickYawAccumulator = 0.0;
 
+bool blockGyro = FALSE;
+
 main
 {
+	
+	
 	//set_val(SWITCH_ZR, 100.0);
 	
 	//update values used for synchronization
@@ -74,9 +80,31 @@ main
 	fix32 accZ = get_val(ACCEL_1_Z);
 	fix32 accMag = sqrt(sq(accX) + sq(accY) + sq(accZ));
 	
-	normalizedAccX = -accX/accMag;
-	normalizedAccY = -accY/accMag;
-	normalizedAccZ = -accZ/accMag;
+	normalizedAcc[0] = -accX/accMag;
+	normalizedAcc[1] = -accY/accMag;
+	normalizedAcc[2] = -accZ/accMag;
+	
+	
+	if(event_active(SWITCH_Y)){
+		
+		blockGyro = TRUE;
+		
+		lastActiveAcc[0] = normalizedAcc[0];
+		lastActiveAcc[1] = normalizedAcc[1];
+		lastActiveAcc[2] = normalizedAcc[2];
+		
+	} else if(event_release(SWITCH_Y)) {
+		
+		blockGyro = FALSE;
+		
+		fix32 r[4] = {1.0, 0.0, 0.0, 0.0};
+		Quaternion_rotationBetween(ARG(normalizedAcc), ARG(lastActiveAcc), ARG(r));
+		Quaternion_multiply(ARG(accRotation), ARG(r), ARG(accRotation));
+	}
+	
+	if(is_active(SWITCH_Y)){
+		set_val(SWITCH_Y, 0.0);	
+	}
 	
 	
 	uint32 dt = elapsed_time();
@@ -100,31 +128,58 @@ main
 		gyroAccumulatorY += get_actual(GYRO_1_Y) * gyroMult;
 		gyroAccumulatorZ += get_actual(GYRO_1_Z) * gyroMult;
 	}
+	
+	if(blockGyro){
+		normalizedAcc[0] = lastActiveAcc[0];
+		normalizedAcc[1] = lastActiveAcc[1];
+		normalizedAcc[2] = lastActiveAcc[2];
+	}
+	
+	//rotate
+	Quaternion_rotate(ARG(accRotation), ARG(normalizedAcc), ARG(normalizedAcc));
+	
+	set_val(SWITCH_ACCX, normalizedAcc[0] * -25.0);
+	set_val(SWITCH_ACCY, normalizedAcc[1] * -25.0);
+	set_val(SWITCH_ACCZ, normalizedAcc[2] * -25.0);
 
 	
 	//average our gyro data and apply our flick based on the normalized accelerometer
-	fix32 avgX = get_actual(GYRO_1_X) * gyroMult;
+	fix32 avgX = get_actual(SWITCH_GYROX) * gyroMult;
 	if(inputsSinceLast > 0){
 		avgX = gyroAccumulatorX / (fix32) inputsSinceLast;
 	}
+	if(blockGyro){ 
+		avgX = 0.0; 
+	}
 	
-	fix32 newX = avgX + (flickYawAccumulator * normalizedAccX);
-	set_val(GYRO_1_X, newX);
+	fix32 newX = avgX + (flickYawAccumulator * normalizedAcc[0]);
+	set_val(SWITCH_GYROX, newX);
 	
-	fix32 avgY = get_actual(GYRO_1_Y) * gyroMult;
+	fix32 avgY = get_actual(SWITCH_GYROY) * gyroMult;
 	
 	if(inputsSinceLast > 0){
 		avgY = gyroAccumulatorY / (fix32) inputsSinceLast;
 	}
-	fix32 newY = avgY + (flickYawAccumulator * normalizedAccY);
-	set_val(GYRO_1_Y, newY);
+	if(blockGyro){ 
+		avgY = 0.0; 
+	}
 	
-	fix32 avgZ = get_actual(GYRO_1_Z) * gyroMult;
+	
+	fix32 newY = avgY + (flickYawAccumulator * normalizedAcc[1]);
+	set_val(SWITCH_GYROY, newY);
+	
+	fix32 avgZ = get_actual(SWITCH_GYROZ) * gyroMult;
 	if(inputsSinceLast > 0){
 		avgZ = gyroAccumulatorZ / (fix32) inputsSinceLast;
 	}
-	fix32 newZ = avgZ + (flickYawAccumulator * normalizedAccZ);
-	set_val(GYRO_1_Z, newZ);
+	if(blockGyro){ 
+		avgZ = 0.0; 
+	}
+	
+	
+	fix32 newZ = avgZ + (flickYawAccumulator * normalizedAcc[2]);
+	set_val(SWITCH_GYROZ, newZ);
+	
 	
 	//dumb 360 lol
 	//if(event_active(BUTTON_15)){
@@ -161,9 +216,9 @@ combo JumpToBase
 //do a 360 @ +5 sens
 combo Spin 
 {
-	set_val(GYRO_1_X, normalizedAccX * 60.0);
-	set_val(GYRO_1_Y, normalizedAccY * 60.0);
-	set_val(GYRO_1_Z, normalizedAccZ * 60.0);
+	set_val(GYRO_1_X, normalizedAcc[0] * 60.0);
+	set_val(GYRO_1_Y, normalizedAcc[1] * 60.0);
+	set_val(GYRO_1_Z, normalizedAcc[2] * 60.0);
 	wait(200);
 }
 
@@ -171,14 +226,14 @@ combo Spin
 combo ShootSpin 
 {
 	wait(20);
-	set_val(GYRO_1_X, normalizedAccX * 60.0);
-	set_val(GYRO_1_Y, normalizedAccY * 60.0);
-	set_val(GYRO_1_Z, normalizedAccZ * 60.0);
+	set_val(GYRO_1_X, normalizedAcc[0] * 60.0);
+	set_val(GYRO_1_Y, normalizedAcc[1] * 60.0);
+	set_val(GYRO_1_Z, normalizedAcc[2] * 60.0);
 	wait(100);
 	set_val(SWITCH_ZR, 100.0);
-	set_val(GYRO_1_X, normalizedAccX * 60.0);
-	set_val(GYRO_1_Y, normalizedAccY * 60.0);
-	set_val(GYRO_1_Z, normalizedAccZ * 60.0);
+	set_val(GYRO_1_X, normalizedAcc[0] * 60.0);
+	set_val(GYRO_1_Y, normalizedAcc[1] * 60.0);
+	set_val(GYRO_1_Z, normalizedAcc[2] * 60.0);
 	wait(100);
 	set_val(SWITCH_ZR, 100.0);
 	wait(50);
