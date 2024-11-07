@@ -90,6 +90,15 @@ default = 0
 item = Turbo Booyah
 
 
+[SUPER JUMP TO BASE MACRO]
+shortdesc = Pressing the left stick will execute the inputs to jump to base
+byteoffset = 8
+bitsize = 1
+bitoffset = 6
+control = checkbox
+default = 1
+item = Left Stick Press to Super Jump to base
+
 
 
 [FLICK STICK]
@@ -223,6 +232,21 @@ maximum = 1000
 step = 1
 item = Long Press Threshold
 
+[SPACE 9]
+group = TRUE
+control = space
+default = 10
+
+[Y PRESS DELAY ENABLED]
+group = TRUE
+shortdesc = how long to wait before sending a y press on a short press (more laggy y presses, but less need to double press)
+byteoffset = 8
+bitsize = 1
+bitoffset = 5
+control = checkbox
+default = 0
+item = Y press delay
+
 
 
 </cfgdesc>
@@ -263,6 +287,8 @@ uint16 longPressThreshold = 200;
 
 fix32 zrThresholdPercentage = 50.0;
 
+uint16 yPressDelay = 0;
+
 void initConstants()
 {
 	pmem_load();
@@ -277,6 +303,13 @@ void initConstants()
 	booyahTurbo = (pmem_read(8) >> 2) & 0b1;
 	flickStickEnabled = (pmem_read(8) >> 3) & 0b1;
 	gyroOffButton = (pmem_read(8) >> 4) & 0b1;
+	bool yPressDelayOn = (pmem_read(8) >> 5) & 0b1;
+	if(yPressDelayOn){
+		yPressDelay = 320;
+	} else {
+		yPressDelay = 0;
+	}
+	superJumpOnLs = (pmem_read(8) >> 6) & 0b1;
 	
 	pmem_read(9, &flickTimeMs);
 	
