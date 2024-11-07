@@ -83,12 +83,12 @@ main
 	
 	//can only update flickstick values if measurable time has elapsed
 	if(flickStickEnabled && dt > 0) {
-		fix32 angle = rightStickAngle();
+		fix32 rsAngle = rightStickAngle();
 		fix32 magnitude = rightStickMagnitude();
 		
-		fix32 flickAmount = handleFlickStick(lastAngle, lastMagnitude, angle, magnitude, dt);
+		fix32 flickAmount = handleFlickStick(lastAngle, lastMagnitude, rsAngle, magnitude, dt);
 		
-		lastAngle = angle;
+		lastAngle = rsAngle;
 		lastMagnitude = magnitude;
 	
 		flickYawAccumulator += (flickAmount * flickMult);	  
