@@ -247,6 +247,16 @@ control = checkbox
 default = 0
 item = Y press delay
 
+[GYRO AXIS]
+shortdesc = which axis to use for in game yaw rotations
+byteoffset = 21
+bitsize = 8
+bitoffset = 0
+control=radiobox
+default = 0
+item = Native/Adaptive
+item = Yaw
+item = Roll (buggy)
 
 
 </cfgdesc>
@@ -289,6 +299,11 @@ fix32 zrThresholdPercentage = 50.0;
 
 uint16 yPressDelay = 0;
 
+#define AXIS_NATIVE 0
+#define AXIS_YAW 1
+#define AXIS_ROLL 2
+uint8 gyroAxis;
+
 void initConstants()
 {
 	pmem_load();
@@ -327,6 +342,7 @@ void initConstants()
 	
 	pmem_read(19, &longPressThreshold);
 	
+	pmem_read(21, &gyroAxis);
 }
 
 #endif

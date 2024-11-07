@@ -16,6 +16,8 @@ fix32 normalizedAcc[3] = {0.0, 0.0, 0.0};
 fix32 lastActiveAcc[3] = {0.0, 0.0, -25.0};
 fix32 accRotation[4] = {1.0, 0.0, 0.0, 0.0}; // start with identity q
 
+const fix32 up[3] = {0.0, 0.0, 1.0};
+
 init {
 	initConstants();
 	
@@ -162,6 +164,20 @@ main
 		avgGyro[0] = gyroAccumulatorX / (fix32) inputsSinceLast;
 		avgGyro[1] = gyroAccumulatorY / (fix32) inputsSinceLast;
 		avgGyro[2] = gyroAccumulatorZ / (fix32) inputsSinceLast;
+	}
+	
+	if(gyroAxis == AXIS_YAW){
+		avgGyro[1] = 0.0;
+	} else if(gyroAxis == AXIS_ROLL){
+		avgGyro[2] = avgGyro[1];
+		avgGyro[1] = 0.0;
+	}
+	
+	if(gyroAxis != AXIS_NATIVE){
+		fix32 gyroAxisRotation[4] = {1.0, 0.0, 0.0, 0.0};
+		
+		Quaternion_rotationBetween(ARG(up), ARG(normalizedAcc), ARG(gyroAxisRotation));
+		Quaternion_rotate(ARG(gyroAxisRotation), ARG(avgGyro), ARG(avgGyro));
 	}
 	
 	if(blockGyro){ 
