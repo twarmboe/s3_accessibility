@@ -85,7 +85,7 @@ main
 	normalizedAcc[2] = -accZ/accMag;
 	
 	
-	if(event_active(SWITCH_Y)){
+	if(gyroOffButton && event_active(SWITCH_Y)){
 		
 		blockGyro = TRUE;
 		
@@ -93,7 +93,7 @@ main
 		lastActiveAcc[1] = normalizedAcc[1];
 		lastActiveAcc[2] = normalizedAcc[2];
 		
-	} else if(event_release(SWITCH_Y)) {
+	} else if(gyroOffButton && event_release(SWITCH_Y)) {
 		blockGyro = FALSE;
 		
 		if(time_active(SWITCH_Y) <= longPressThreshold){
@@ -110,7 +110,7 @@ main
 		}
 	}
 	
-	if(is_active(SWITCH_Y)){
+	if(gyroOffButton && is_active(SWITCH_Y)){
 		set_val(SWITCH_Y, 0.0);	
 	}
 	
