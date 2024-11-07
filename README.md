@@ -7,13 +7,15 @@ This project is aimed at providing additional accessibility options for the Spla
 ### Current features
 
 - A [Flick Stick](https://www.youtube.com/watch?v=C5L_Px3dFtE) implementation
+- A Gyro off ratcheting button (holding y, quick presses still act as normal)
+- Adjustable gyro sensitivity on the natural sensitivity scale (where N on that scale means that for every 1º of controller rotation, Nº of camera rotation will happen in game)
 - Deactivating controller rumble
 - Turbo "Booyah!" as well as remapping "Booyah!"
+- Quick Super Jump To Base on Left Stick Press
 
 ### Planned features
 
-- Adjustable gyro sensitivity on the natural sensitivity scale (where N on that scale means that for every 1º of controller rotation, Nº of camera rotation will happen in game)
-- A more expansive gyro modifier button (Gyro off, Gyro on, Gyro toggle, Native reset camera, reset camera pitch only, invert gyro) similar to Fortnite's gyro options
+- A more expansive gyro modifier button (Gyro on, Gyro toggle, Native reset camera, reset camera pitch only, invert gyro) similar to Fortnite's gyro options
 - Expanded sensitivity options like acceleration and vertical/horizontal ratio
 - An option for regular horizontal+vertical stick *while* gyro is enabled (normally vertical stick is disabled while gyro is enabled)
 - Expanded joystick sensitivity curves for stick players
