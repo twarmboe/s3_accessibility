@@ -16,7 +16,7 @@ fix32 normalizedAcc[3] = {0.0, 0.0, 0.0};
 fix32 lastActiveAcc[3] = {0.0, 0.0, -25.0};
 fix32 accRotation[4] = {1.0, 0.0, 0.0, 0.0}; // start with identity q
 
-const fix32 up[3] = {0.0, 0.0, 1.0};
+const fix32 up[3] = {0.0, 0.0, -1.0};
 
 init {
 	initConstants();
@@ -82,9 +82,9 @@ main
 	fix32 accZ = get_val(ACCEL_1_Z);
 	fix32 accMag = sqrt(sq(accX) + sq(accY) + sq(accZ));
 	
-	normalizedAcc[0] = -accX/accMag;
-	normalizedAcc[1] = -accY/accMag;
-	normalizedAcc[2] = -accZ/accMag;
+	normalizedAcc[0] = accX/accMag;
+	normalizedAcc[1] = accY/accMag;
+	normalizedAcc[2] = accZ/accMag;
 	
 	
 	if(gyroOffButton && event_active(SWITCH_Y)){
@@ -148,9 +148,9 @@ main
 	//rotate
 	Quaternion_rotate(ARG(accRotation), ARG(normalizedAcc), ARG(normalizedAcc));
 	
-	set_val(SWITCH_ACCX, normalizedAcc[0] * -25.0);
-	set_val(SWITCH_ACCY, normalizedAcc[1] * -25.0);
-	set_val(SWITCH_ACCZ, normalizedAcc[2] * -25.0);
+	set_val(SWITCH_ACCX, normalizedAcc[0] * 25.0);
+	set_val(SWITCH_ACCY, normalizedAcc[1] * 25.0);
+	set_val(SWITCH_ACCZ, normalizedAcc[2] * 25.0);
 
 	
 	//average our gyro data and apply our flick based on the normalized accelerometer
@@ -189,9 +189,9 @@ main
 		Quaternion_rotate(ARG(accRotation), ARG(avgGyro), ARG(avgGyro));
 	}
 	
-	fix32 newX = avgGyro[0] + (flickYawAccumulator * normalizedAcc[0]);
-	fix32 newY = avgGyro[1] + (flickYawAccumulator * normalizedAcc[1]);
-	fix32 newZ = avgGyro[2] + (flickYawAccumulator * normalizedAcc[2]);
+	fix32 newX = avgGyro[0] + (flickYawAccumulator * -normalizedAcc[0]);
+	fix32 newY = avgGyro[1] + (flickYawAccumulator * -normalizedAcc[1]);
+	fix32 newZ = avgGyro[2] + (flickYawAccumulator * -normalizedAcc[2]);
 	
 	set_val(SWITCH_GYROX, newX);
 	set_val(SWITCH_GYROY, newY);
