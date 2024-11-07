@@ -195,8 +195,33 @@ step = 100
 decimals = 2
 item = Flick Sensitivity
 
+[GYRO OFF BUTTON]
+collapsible = 1
+shortdesc = Y can be held to suppress gyro/accelerometer input (ratcheting button)
+byteoffset = 8
+bitsize = 1
+bitoffset = 4
+control = checkbox
+default = 0
+item = Gyro Off Button
 
+[SPACE 8]
+group = TRUE
+control = space
+default = 10
 
+[LONG PRESS THRESHOLD]
+group = TRUE
+shortdesc = How long in milliseconds the Y button needs to be held for it to not count as a press
+byteoffset = 19
+bitsize = 16
+bitoffset = 0
+control = spinbox
+default = 200
+minimum = 1
+maximum = 1000
+step = 1
+item = Long Press Threshold
 
 
 
@@ -209,6 +234,7 @@ bool booyahSwap = FALSE;
 bool booyahTurbo = FALSE;
 bool flickStickEnabled = FALSE;
 bool superJumpOnLs = TRUE;
+bool gyroOffButton = FALSE;
 
 //fine tuned at +5 sens
 //procon 
@@ -250,6 +276,7 @@ void initConstants()
 	booyahSwap = (pmem_read(8) >> 1) & 0b1;
 	booyahTurbo = (pmem_read(8) >> 2) & 0b1;
 	flickStickEnabled = (pmem_read(8) >> 3) & 0b1;
+	gyroOffButton = (pmem_read(8) >> 4) & 0b1;
 	
 	pmem_read(9, &flickTimeMs);
 	
@@ -264,6 +291,8 @@ void initConstants()
 	pmem_read(13, &r3FlickDisableWindow);
 	
 	pmem_read(15, &flickMult);
+	
+	pmem_read(19, &longPressThreshold);
 	
 }
 
