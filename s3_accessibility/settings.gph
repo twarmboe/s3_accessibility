@@ -233,6 +233,8 @@ uint32 flickCooldownWindow = 50;
 //in ms how long after an R3 input do we block flicks
 uint16 r3FlickDisableWindow = 250;
 
+uint16 longPressThreshold = 200;
+
 fix32 zrThresholdPercentage = 50.0;
 
 void initConstants()
