@@ -46,7 +46,7 @@ fix32 rightStickMagnitude()
 fix32 wrap(fix32 value, fix32 low, fix32 high)
 {
 	fix32 delta = high - low;
-	return mod(value + low, delta) - low;
+	return mod(value - low + delta, delta) + low;
 }
 
 
