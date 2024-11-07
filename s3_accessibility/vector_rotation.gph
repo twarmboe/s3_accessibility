@@ -1,0 +1,112 @@
+#ifndef VECTOR_ROTATION_GPH_
+#define VECTOR_ROTATION_GPH_
+
+#define QUATERNION(w, i, j, k) {w, i, j, k}
+#define VECTOR3(x, y, z) {x, y, z}
+
+//for some reason can't directly pass in an array :(
+#define ARG(x) &x[0]
+
+fix32 Quaternion_magnitude(fix32* q)
+{
+    return sqrt(sq(q[0]) + sq(q[1]) + sq(q[2]) + sq(q[3]));
+}
+
+void Quaternion_normalize(fix32* q, fix32* qOut)
+{
+    fix32 magnitude = Quaternion_magnitude(q);
+	qOut[0] = q[0] / magnitude;
+	qOut[1] = q[1] / magnitude;
+	qOut[2] = q[2] / magnitude;
+	qOut[3] = q[3] / magnitude;
+}
+
+fix32 Vector3_magnitude(fix32* v)
+{
+    return sqrt(sq(v[0]) + sq(v[1]) + sq(v[2]));
+}
+
+void Vector3_normalize(fix32* v, fix32* vOut)
+{
+    fix32 magnitude = Vector3_magnitude(v);
+	vOut[0] = v[0] / magnitude;
+	vOut[1] = v[1] / magnitude;
+	vOut[2] = v[2] / magnitude;
+}
+
+void Quaternion_multiply(fix32* q1, fix32* q2, fix32* qOut)
+{
+    fix32 w = q1[0] * q2[0]  -  q1[1] * q2[1]  -  q1[2] * q2[2]  -  q1[3] * q2[3];
+    fix32 i = q1[1] * q2[0]  +  q1[0] * q2[1]  +  q1[2] * q2[3]  -  q1[3] * q2[2];
+    fix32 j = q1[0] * q2[2]  -  q1[1] * q2[3]  +  q1[2] * q2[0]  +  q1[3] * q2[1];
+    fix32 k = q1[0] * q2[3]  +  q1[1] * q2[2]  -  q1[2] * q2[1]  +  q1[3] * q2[0];
+	
+	qOut[0] = w;
+	qOut[1] = i;
+	qOut[2] = j;
+	qOut[3] = k;
+}
+
+void Quaternion_rotate(fix32* q, fix32* v, fix32* vOut)
+{
+    fix32 ww = sq(q[0]);
+    fix32 ii = sq(q[1]);
+    fix32 jj = sq(q[2]);
+    fix32 kk = sq(q[3]);
+    fix32 wi = q[0] * q[1];
+    fix32 wj = q[0] * q[2];
+    fix32 wk = q[0] * q[3];
+    fix32 ij = q[1] * q[2];
+    fix32 ik = q[1] * q[3];
+    fix32 jk = q[2] * q[3];
+
+    fix32 i = ww * v[0] + 2.0 * wj * v[2] - 2.0 * wk * v[1] +
+                ii * v[0] + 2.0 * ij * v[1] + 2.0 * ik * v[2] -
+                kk*v[0] - jj*v[0];
+    fix32 j = 2.0 * ij * v[0] + jj * v[1] + 2.0 * jk * v[2] +
+                2.0 * wk * v[0] - kk * v[1] + ww * v[1] -
+                2.0 * wi * v[2] - ii * v[1];
+    fix32 k = 2.0 * ik * v[0] + 2.0 * jk * v[1] + kk * v[2] -
+                2.0 * wj * v[0] - jj * v[2] + 2.0 * wi * v[1] -
+                ii * v[2] + ww * v[2];
+	
+	vOut[0] = i;
+	vOut[1] = j;
+	vOut[2] = k;
+}
+
+void Vector3_cross(fix32* v1, fix32* v2, fix32* vOut)
+{
+	fix32 i, j, k;
+	i = v1[1] * v2[2] - v1[2] * v2[1];
+	j = v1[2] * v2[0] - v1[0] * v2[2];
+	k = v1[0] * v2[1] - v1[1] * v1[0];
+	vOut[0] = i;
+	vOut[1] = j;
+	vOut[2] = k;
+}
+
+fix32 Vector3_dot(fix32* v1, fix32* v2)
+{
+	return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
+}
+
+
+void Quaternion_rotationBetween(fix32* startV, fix32* endV, fix32* qOut)
+{
+	//magnitude of startV squared
+	fix32 mag1sq = sq(startV[0]) + sq(startV[1]) + sq(startV[2]);
+	//magnitude of endV squared
+	fix32 mag2sq = sq(endV[0]) + sq(endV[1]) + sq(endV[2]);
+	
+	//w
+	qOut[0] = sqrt(mag1sq * mag2sq) + Vector3_dot(startV, endV);
+	
+	//ijk
+	Vector3_cross(startV, endV, &qOut[1]);
+	
+	Quaternion_normalize(qOut, qOut);
+}
+
+
+#endif
