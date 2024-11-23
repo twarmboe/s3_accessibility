@@ -7,7 +7,7 @@
 #include "settings.gph"
 #include <switch.gph>
 
-#define INPUT_BUFFER_LEN 10
+#define INPUT_BUFFER_LEN 20
 
 // mostly following jib's tutorial at:
 // http://gyrowiki.jibbsmart.com/blog:good-gyro-controls-part-2:the-flick-stick

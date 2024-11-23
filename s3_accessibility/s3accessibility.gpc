@@ -53,7 +53,6 @@ bool blockGyro = FALSE;
 main
 {
 	
-	
 	//set_val(SWITCH_ZR, 100.0);
 	
 	//update values used for synchronization
@@ -89,7 +88,7 @@ main
 	fix32 accY = get_val(ACCEL_1_Y);
 	fix32 accZ = get_val(ACCEL_1_Z);
 	fix32 accMag = sqrt(sq(accX) + sq(accY) + sq(accZ));
-	fix32 accPitch = atan2(-accY, -accZ);
+	fix32 accPitch = atan2(-accY, -accZ) * pitchMult;
 	
 	
 	if(gyroOffButton && event_active(SWITCH_Y)){
@@ -184,9 +183,6 @@ main
 		avgGyro[0] = 0.0;
 		avgGyro[1] = 0.0;
 		avgGyro[2] = 0.0;
-	} else {
-		//rotate based on accelerometer offset
-		//Quaternion_rotate(ARG(accRotation), ARG(avgGyro), ARG(avgGyro));
 	}
 	
 	fix32 newX = avgGyro[0] + (flickYawAccumulator * -normalizedAcc[0]);

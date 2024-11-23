@@ -36,6 +36,26 @@ group = TRUE
 control = space
 default = 10
 
+[ACCELEROMETER SENSITIVITY]
+group = TRUE
+shortdesc = How much to adjust the accelerometer sensitivity (most people should use the buttons above and set natural sensitivity instead)
+byteoffset = 22
+bitsize = 32
+bitoffset = 0
+control = spinboxf
+default = 357
+minimum = 10
+maximum = 3276799
+step = 1
+decimals = 3
+item = Accelerometer Sensitivity
+
+
+[SPACE 2]
+group = TRUE
+control = space
+default = 10
+
 [NATURAL SENSITIVITY]
 group = TRUE
 shortdesc = Natural Sensitivity multiplier
@@ -74,7 +94,7 @@ control = checkbox
 default = 0
 item = Swap L and D-Pad Down
 
-[SPACE 2]
+[SPACE 3]
 group = TRUE
 control = space
 default = 10
@@ -111,7 +131,7 @@ control = checkbox
 default = 0
 item = Enable Flick Stick
 
-[SPACE 3]
+[SPACE 4]
 group = TRUE
 control = space
 default = 10
@@ -131,7 +151,7 @@ item = Flick Time (Ms)
 
 
 
-[SPACE 4]
+[SPACE 5]
 group = TRUE
 control = space
 default = 10
@@ -149,7 +169,7 @@ maximum = 45
 step = 1
 item = Forward Snap Angle
 
-[SPACE 5]
+[SPACE 6]
 group = TRUE
 control = space
 default = 10
@@ -167,7 +187,7 @@ maximum = 99
 step = 1
 item = Flick Threshold
 
-[SPACE 6]
+[SPACE 7]
 group = TRUE
 control = space
 default = 10
@@ -185,7 +205,7 @@ maximum = 500
 step = 1
 item = Special Flick Disable Window
 
-[SPACE 7]
+[SPACE 8]
 group = TRUE
 control = space
 default = 10
@@ -214,7 +234,7 @@ control = checkbox
 default = 0
 item = Gyro Off Button
 
-[SPACE 8]
+[SPACE 9]
 group = TRUE
 control = space
 default = 10
@@ -232,7 +252,7 @@ maximum = 1000
 step = 1
 item = Long Press Threshold
 
-[SPACE 9]
+[SPACE 10]
 group = TRUE
 control = space
 default = 10
@@ -279,6 +299,8 @@ fix32 gyroMult = .66;
 //fine tuned at +5 sens
 fix32 flickMult = 1900.0;
 
+fix32 pitchMult = 0.357;
+
 //plus or minus number of degrees to snap to the forward (0) angle when initializing the flick
 fix32 forwardSnapAngleDegrees = 20.0;
 
@@ -310,8 +332,12 @@ void initConstants()
 	
 	pmem_read(0, &gyroMult);
 	fix32 naturalSens = 0.0;
+
 	pmem_read(4, &naturalSens);
 	gyroMult *= naturalSens;
+
+	pmem_read(22, &pitchMult);
+	pitchMult *= naturalSens;
 	
 	rumbleOff = !(pmem_read(8) & 0b1);
 	booyahSwap = (pmem_read(8) >> 1) & 0b1;
