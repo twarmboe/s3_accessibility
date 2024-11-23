@@ -254,9 +254,9 @@ bitsize = 8
 bitoffset = 0
 control=radiobox
 default = 0
-item = Native/Adaptive
+item = Adaptive
 item = Yaw
-item = Roll (buggy)
+item = Roll
 
 
 </cfgdesc>

@@ -8,14 +8,22 @@
 #include <switch.gph>
 #include "vector_rotation.gph"
 
+
+//right stick
 fix32 lastAngle = 0.0;
 fix32 lastMagnitude = 0.0;
 
+// in radians, keep between pi/2 (90 degrees)
+fix32 mockPitch = 0.0;
+//we need to calculate each input based on a rerence pitch or we will compound error in our mock
+fix32 referencePitch = 0.0;
+//the last mock pitch we sent
+fix32 lastMockPitch = 0.0;
+
 fix32 normalizedAcc[3] = {0.0, 0.0, 0.0};
 
-fix32 lastActiveAcc[3] = {0.0, 0.0, -25.0};
-fix32 accRotation[4] = {1.0, 0.0, 0.0, 0.0}; // start with identity q
-
+const fix32 HALF_PI = PI/2.0;
+const fix32 GRAVITY = 25.0;
 const fix32 up[3] = {0.0, 0.0, -1.0};
 
 init {
@@ -81,39 +89,32 @@ main
 	fix32 accY = get_val(ACCEL_1_Y);
 	fix32 accZ = get_val(ACCEL_1_Z);
 	fix32 accMag = sqrt(sq(accX) + sq(accY) + sq(accZ));
-	
-	normalizedAcc[0] = accX/accMag;
-	normalizedAcc[1] = accY/accMag;
-	normalizedAcc[2] = accZ/accMag;
+	fix32 accPitch = atan2(-accY, -accZ);
 	
 	
 	if(gyroOffButton && event_active(SWITCH_Y)){
 		
 		blockGyro = TRUE;
 		
-		lastActiveAcc[0] = normalizedAcc[0];
-		lastActiveAcc[1] = normalizedAcc[1];
-		lastActiveAcc[2] = normalizedAcc[2];
-		
 	} else if(gyroOffButton && event_release(SWITCH_Y)) {
 		blockGyro = FALSE;
+		referencePitch = accPitch - lastMockPitch;
 		
 		if(time_active(SWITCH_Y) <= longPressThreshold){
 			combo_run(CameraReset);
-			//reset to no rotation
-			accRotation[0] = 1.0;
-			accRotation[1] = 0.0;
-			accRotation[2] = 0.0;
-			accRotation[3] = 0.0;
-		} else {
-			fix32 r[4] = {1.0, 0.0, 0.0, 0.0};
-			Quaternion_rotationBetween(ARG(normalizedAcc), ARG(lastActiveAcc), ARG(r));
-			Quaternion_multiply(ARG(accRotation), ARG(r), ARG(accRotation));
+			referencePitch = 0.0;			
 		}
 	}
 	
 	if(gyroOffButton && is_active(SWITCH_Y)){
 		set_val(SWITCH_Y, 0.0);	
+	}
+	
+
+	if(!blockGyro) {
+	    //calculate our new pitch and keep it in bounds
+		mockPitch = accPitch - referencePitch;
+		mockPitch = clamp(mockPitch, -HALF_PI, HALF_PI); // weird stuff happens when controller upside down
 	}
 	
 	
@@ -137,28 +138,24 @@ main
 		gyroAccumulatorX += get_actual(GYRO_1_X) * gyroMult;
 		gyroAccumulatorY += get_actual(GYRO_1_Y) * gyroMult;
 		gyroAccumulatorZ += get_actual(GYRO_1_Z) * gyroMult;
-	}
+	}	
 	
-	if(blockGyro){
-		normalizedAcc[0] = lastActiveAcc[0];
-		normalizedAcc[1] = lastActiveAcc[1];
-		normalizedAcc[2] = lastActiveAcc[2];
-	}
+	lastMockPitch = mockPitch; //keep track for future inputs
 	
-	//rotate
-	Quaternion_rotate(ARG(accRotation), ARG(normalizedAcc), ARG(normalizedAcc));
+	//calculate and output accelerometer data based on our mock pitch
+	normalizedAcc[0] = 0.0;
+	normalizedAcc[1] = -sin(mockPitch);
+	normalizedAcc[2] = -cos(mockPitch);
 	
-	set_val(SWITCH_ACCX, normalizedAcc[0] * 25.0);
-	set_val(SWITCH_ACCY, normalizedAcc[1] * 25.0);
-	set_val(SWITCH_ACCZ, normalizedAcc[2] * 25.0);
-
+	set_val(SWITCH_ACCX, normalizedAcc[0] * GRAVITY);
+	set_val(SWITCH_ACCY, normalizedAcc[1] * GRAVITY);
+	set_val(SWITCH_ACCZ, normalizedAcc[2] * GRAVITY);
 	
-	//average our gyro data and apply our flick based on the normalized accelerometer
+	//average our gyro data and apply our flick based on the normalized mock accelerometer data
 	fix32 avgGyro[3] = {0.0, 0.0, 0.0};
 	avgGyro[0] = get_actual(SWITCH_GYROX) * gyroMult;
 	avgGyro[1] = get_actual(SWITCH_GYROY) * gyroMult;
 	avgGyro[2] = get_actual(SWITCH_GYROZ) * gyroMult;
-	
 	
 	if(inputsSinceLast > 0){
 		avgGyro[0] = gyroAccumulatorX / (fix32) inputsSinceLast;
@@ -166,11 +163,14 @@ main
 		avgGyro[2] = gyroAccumulatorZ / (fix32) inputsSinceLast;
 	}
 	
+	
 	if(gyroAxis == AXIS_YAW){
 		avgGyro[1] = 0.0;
 	} else if(gyroAxis == AXIS_ROLL){
 		avgGyro[2] = avgGyro[1];
 		avgGyro[1] = 0.0;
+	} else {
+		//TODO: adaptive based on our mock accelerometer data and the real accelerometer data
 	}
 	
 	if(gyroAxis != AXIS_NATIVE){
@@ -186,7 +186,7 @@ main
 		avgGyro[2] = 0.0;
 	} else {
 		//rotate based on accelerometer offset
-		Quaternion_rotate(ARG(accRotation), ARG(avgGyro), ARG(avgGyro));
+		//Quaternion_rotate(ARG(accRotation), ARG(avgGyro), ARG(avgGyro));
 	}
 	
 	fix32 newX = avgGyro[0] + (flickYawAccumulator * -normalizedAcc[0]);
