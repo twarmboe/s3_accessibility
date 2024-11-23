@@ -48,19 +48,33 @@ You will need to install [Gtuner IV](https://www.consoletuner.com/titan-two-down
 
 In Gtuner go to `Device Configuration` (located in the bottom right) and make sure the `Output Protocol` is set to `USB Nintendo Switch`
 
- Download the scripts hosted here into a directory and load that directory.
+Install method 1: 
 
- Open `s3accessibility.gpc`
+- In Gtuner search for 'splatoon accessibility', look for the one titled `Accessibility Pack for Splatoon 3`
 
- Make sure `Device Memory Slots` is selected in the bottom right.
+- Make sure `Device Memory Slots` is selected in the bottom right.
 
- Click the `install active work to memory slot` button in the top bar and choose a memory slot.
+- Drag the `DRAG DROP` icon over to an open memory slot.
 
- Click the configuration gear icon for the memory slot you chose above.
+- Configure your options (more info below)
 
- Configure your options (more info below)
+- Click `Save and Run`
 
- Click `Save and Run`
+Install method 2:
+
+ - Download the scripts hosted here into a directory and load that directory.
+
+ - Open `s3accessibility.gpc`
+
+ - Make sure `Device Memory Slots` is selected in the bottom right.
+
+ - Click the `install active work to memory slot` button in the top bar and choose a memory slot.
+
+ - Click the configuration gear icon for the memory slot you chose above.
+
+ - Configure your options (more info below)
+
+ - Click `Save and Run`
 
 
 ### Configuration
