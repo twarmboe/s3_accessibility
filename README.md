@@ -35,10 +35,10 @@ A Switch and copy of the game.
 
 A controller. Controllers tested so far:
 
-- ✅ Dualsense (Works well, has a sensitivity preset, high polling rate gives excellent results)
-- ✅ Pro Controller (Works well, has a sensitivity preset, low polling rate gives a bit more jank with the flick stick sweep)
-- ❌ Dualsense Edge (Doesn't work; will need to do some button remappings since they aren't consistent with the Dualsense)
-- ❌ 8bitdo Bluetooth Ultimate (seems like it's defaulting to xinput when wired, might work with the bluetooth adapter or with the beta firmware)
+- ✅⭐ Dualsense (Works best, has a sensitivity preset, high polling rate gives excellent results)
+- ✅  Pro Controller (Works well, has a sensitivity preset, low polling rate gives a bit more jank with the flick stick sweep)
+- ❌  Dualsense Edge (Doesn't work; will need to do some button remappings since they aren't consistent with the Dualsense)
+- ❌  8bitdo Bluetooth Ultimate (seems like it's defaulting to xinput when wired, might work with the bluetooth adapter or with the beta firmware)
 
 ### Setup
 
