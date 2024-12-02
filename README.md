@@ -44,6 +44,8 @@ A controller. Controllers tested so far:
 
 Make sure your switch has wired communication enabled (system settings -> Controllers and Sensors -> Pro Controller Wired Communication)
 
+For most options to work properly you should set your in-game gyro sensitivity to +5. Don't worry if this is higher than what you normall play with, you can modify the effective sensitivity in the configuration step later.
+
 You will need to install [Gtuner IV](https://www.consoletuner.com/titan-two-downloads/)
 
 In Gtuner go to `Device Configuration` (located in the bottom right) and make sure the `Output Protocol` is set to `USB Nintendo Switch`
