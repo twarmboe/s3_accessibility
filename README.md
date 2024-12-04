@@ -8,7 +8,7 @@ This project is aimed at providing additional accessibility options for the Spla
 
 - A [Flick Stick](https://www.youtube.com/watch?v=C5L_Px3dFtE) implementation
 - Selectable Gyro Axis (adaptive, yaw, roll)
-- A Gyro off ratcheting button (holding y, quick presses still act as normal)
+- A Gyro off ratcheting button (holding y, quick presses still act as normal, or by touching the PS touchpad)
 - Adjustable gyro sensitivity on the natural sensitivity scale (where N on that scale means that for every 1º of controller rotation, Nº of camera rotation will happen in game)
 - Adjustable vertical : horizontal sensitivity ratio
 - Deactivating controller rumble
@@ -130,7 +130,8 @@ Flick Stick
 
 Gyro Off Button
  - Enable if you wish to hold y to disable gyro (ratcheting), y will still work normally if you press and release it within a certain window.
- - The length of the window in ms can be set (defaults to 200)
+ - The length of the window in ms can be set (defaults to 200).
+ - If using a playstation controller, you may wish to have touchpad touches disable gyro instead.
 
 Gyro Axis
 - Adaptive (yaw + roll based on how you hold the controller, this is most similar to how Splatoon handles gyro natively)
