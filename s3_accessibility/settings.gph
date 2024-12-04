@@ -339,9 +339,10 @@ fix32 zrThresholdPercentage = 50.0;
 
 uint16 yPressDelay = 0;
 
-#define AXIS_NATIVE 0
+#define AXIS_ADAPTIVE 0
 #define AXIS_YAW 1
 #define AXIS_ROLL 2
+
 uint8 gyroAxis;
 
 void initConstants()

@@ -134,6 +134,7 @@ main
 	
 	//add any new inputs to be averaged until next output
 	if(inputIsNew){
+		//TODO: look into if we should only be applying vertical mult AFTER the accelerometer axis correction
 		gyroAccumulatorX += get_actual(GYRO_1_X) * gyroMult * verticalMult;
 		gyroAccumulatorY += get_actual(GYRO_1_Y) * gyroMult;
 		gyroAccumulatorZ += get_actual(GYRO_1_Z) * gyroMult;
@@ -145,7 +146,7 @@ main
 	normalizedAcc[0] = 0.0;
 	normalizedAcc[1] = -sin(mockPitch);
 	normalizedAcc[2] = -cos(mockPitch);
-	
+		
 	set_val(SWITCH_ACCX, normalizedAcc[0] * GRAVITY);
 	set_val(SWITCH_ACCY, normalizedAcc[1] * GRAVITY);
 	set_val(SWITCH_ACCZ, normalizedAcc[2] * GRAVITY);
@@ -162,18 +163,31 @@ main
 		avgGyro[2] = gyroAccumulatorZ / (fix32) inputsSinceLast;
 	}
 	
+	fix32 gyroAxisRotation[4] = {1.0, 0.0, 0.0, 0.0};
 	
 	if(gyroAxis == AXIS_YAW){
 		avgGyro[1] = 0.0;
 	} else if(gyroAxis == AXIS_ROLL){
 		avgGyro[2] = avgGyro[1];
 		avgGyro[1] = 0.0;
-	} else {
-		//TODO: adaptive based on our mock accelerometer data and the real accelerometer data
+	} else { 
+		//adaptive
+		fix32 actualAcc[3] = {0.0, 0.0, 0.0};
+		actualAcc[0] = get_actual(SWITCH_ACCX);
+		actualAcc[1] = get_actual(SWITCH_ACCY);
+		actualAcc[2] = get_actual(SWITCH_ACCZ);
+		fix32 actualAccMagnitude = sqrt(sq(actualAcc[0]) + sq(actualAcc[1]) + sq(actualAcc[2]));
+		//need to normalize for rotation between to work
+		actualAcc[0] /= actualAccMagnitude;
+		actualAcc[1] /= actualAccMagnitude;
+		actualAcc[2] /= actualAccMagnitude;
+		
+		//Quaternion_rotationBetween(ARG(normalizedAcc), ARG(actualAcc), ARG(gyroAxisRotation));
+		Quaternion_rotationBetween(ARG(actualAcc), ARG(normalizedAcc), ARG(gyroAxisRotation));
+		Quaternion_rotate(ARG(gyroAxisRotation), ARG(avgGyro), ARG(avgGyro));
 	}
 	
-	if(gyroAxis != AXIS_NATIVE){
-		fix32 gyroAxisRotation[4] = {1.0, 0.0, 0.0, 0.0};
+	if(gyroAxis != AXIS_ADAPTIVE){
 		
 		Quaternion_rotationBetween(ARG(up), ARG(normalizedAcc), ARG(gyroAxisRotation));
 		Quaternion_rotate(ARG(gyroAxisRotation), ARG(avgGyro), ARG(avgGyro));
