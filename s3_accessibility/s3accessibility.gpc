@@ -134,7 +134,6 @@ main
 	
 	//add any new inputs to be averaged until next output
 	if(inputIsNew){
-		//TODO: look into if we should only be applying vertical mult AFTER the accelerometer axis correction
 		gyroAccumulatorX += get_actual(GYRO_1_X) * gyroMult * verticalMult;
 		gyroAccumulatorY += get_actual(GYRO_1_Y) * gyroMult;
 		gyroAccumulatorZ += get_actual(GYRO_1_Z) * gyroMult;
