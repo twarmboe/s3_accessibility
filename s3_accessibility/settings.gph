@@ -267,21 +267,6 @@ maximum = 1000
 step = 1
 item = Long Press Threshold
 
-[SPACE 11]
-group = TRUE
-control = space
-default = 10
-
-[Y PRESS DELAY ENABLED]
-group = TRUE
-shortdesc = how long to wait before sending a y press on a short press (more laggy y presses, but less need to double press)
-byteoffset = 8
-bitsize = 1
-bitoffset = 5
-control = checkbox
-default = 0
-item = Y press delay
-
 [GYRO AXIS]
 shortdesc = which axis to use for in game yaw rotations
 byteoffset = 21
@@ -337,8 +322,6 @@ uint16 longPressThreshold = 200;
 
 fix32 zrThresholdPercentage = 50.0;
 
-uint16 yPressDelay = 0;
-
 #define AXIS_ADAPTIVE 0
 #define AXIS_YAW 1
 #define AXIS_ROLL 2
@@ -367,12 +350,6 @@ void initConstants()
 	booyahTurbo = (pmem_read(8) >> 2) & 0b1;
 	flickStickEnabled = (pmem_read(8) >> 3) & 0b1;
 	gyroOffButton = (pmem_read(8) >> 4) & 0b1;
-	bool yPressDelayOn = (pmem_read(8) >> 5) & 0b1;
-	if(yPressDelayOn){
-		yPressDelay = 320;
-	} else {
-		yPressDelay = 0;
-	}
 	superJumpOnLs = (pmem_read(8) >> 6) & 0b1;
 	
 	pmem_read(9, &flickTimeMs);

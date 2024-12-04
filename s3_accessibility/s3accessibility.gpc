@@ -241,9 +241,6 @@ combo JumpToBase
 
 combo CameraReset
 {
-	//allow accel data to catch up before we reset
-	set_val(SWITCH_Y, 0);
-	wait(yPressDelay);
 	set_val(SWITCH_Y, 100);
 	wait(20);
 	set_val(SWITCH_Y, 0);
