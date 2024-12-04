@@ -37,7 +37,7 @@ A controller. Controllers tested so far:
 
 - ✅⭐ Dualsense (Works best, has a sensitivity preset, high polling rate gives excellent results)
 - ✅  Pro Controller (Works well, has a sensitivity preset, low polling rate gives a bit more jank with the flick stick sweep)
-- ❌  Dualsense Edge (Doesn't work; will need to do some button remappings since they aren't consistent with the Dualsense)
+- ❌  Dualsense Edge (Doesn't work; will probably need some sort of firmware fix on ConsoleTuner's side of things since things like gyro/accel aren't even detected)
 - ❌  8bitdo Bluetooth Ultimate (seems like it's defaulting to xinput when wired, might work with the bluetooth adapter or with the beta firmware)
 
 ### Setup
