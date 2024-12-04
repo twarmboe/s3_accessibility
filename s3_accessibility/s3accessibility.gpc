@@ -6,6 +6,7 @@
 #include "settings.gph"
 #include "io_sync.gph"
 #include <switch.gph>
+#include <ps5.gph>
 #include "vector_rotation.gph"
 
 
@@ -90,22 +91,23 @@ main
 	fix32 accMag = sqrt(sq(accX) + sq(accY) + sq(accZ));
 	fix32 accPitch = atan2(-accY, -accZ) * accelerometerMult;
 	
-	
-	if(gyroOffButton && event_active(SWITCH_Y)){
+	if(gyroOffButtonEnabled && event_active(gyroOffButton)){
 		
 		blockGyro = TRUE;
 		
-	} else if(gyroOffButton && event_release(SWITCH_Y)) {
+	} else if(gyroOffButtonEnabled && event_release(gyroOffButton)) {
 		blockGyro = FALSE;
 		referencePitch = accPitch - lastMockPitch;
 		
-		if(time_active(SWITCH_Y) <= longPressThreshold){
+		if(gyroOffButton == SWITCH_Y && time_active(SWITCH_Y) <= longPressThreshold){
+			//if we're in the long press threshold and using y as our gyro off then this was a short
+			//press so go ahead and reset the camera
 			combo_run(CameraReset);
-			referencePitch = 0.0;			
 		}
 	}
 	
-	if(gyroOffButton && is_active(SWITCH_Y)){
+	//block y press *IF* it's our gyro off button
+	if(gyroOffButtonEnabled && gyroOffButton == SWITCH_Y && is_active(SWITCH_Y)){
 		set_val(SWITCH_Y, 0.0);	
 	}
 	

@@ -267,6 +267,21 @@ maximum = 1000
 step = 1
 item = Long Press Threshold
 
+[SPACE 11]
+group = TRUE
+control = space
+default = 10
+
+[TOUCHPAD GYRO OFF]
+group = TRUE
+shortdesc = Touch the playstation touchpad for gyro-off instead of holding the y/square button.
+byteoffset = 8
+bitsize = 1
+bitoffset = 5
+control = checkbox
+default = 0
+item = Touchpad Gyro Off
+
 [GYRO AXIS]
 shortdesc = which axis to use for in game yaw rotations
 byteoffset = 21
@@ -283,12 +298,17 @@ item = Roll
 
 ***/
 
+#include <switch.gph>
+#include <ps5.gph>
+
 bool rumbleOff = FALSE;
 bool booyahSwap = FALSE;
 bool booyahTurbo = FALSE;
 bool flickStickEnabled = FALSE;
 bool superJumpOnLs = TRUE;
-bool gyroOffButton = FALSE;
+bool gyroOffButtonEnabled = FALSE;
+
+uint8 gyroOffButton = SWITCH_Y;
 
 //fine tuned at +5 sens
 //procon 
@@ -349,7 +369,15 @@ void initConstants()
 	booyahSwap = (pmem_read(8) >> 1) & 0b1;
 	booyahTurbo = (pmem_read(8) >> 2) & 0b1;
 	flickStickEnabled = (pmem_read(8) >> 3) & 0b1;
-	gyroOffButton = (pmem_read(8) >> 4) & 0b1;
+	gyroOffButtonEnabled = (pmem_read(8) >> 4) & 0b1;
+	
+	bool touchpadOffButton = (pmem_read(8) >> 5) & 0b1;
+	if(touchpadOffButton) {
+		gyroOffButton = PS5_TOUCH1;
+	} else {
+		gyroOffButton = SWITCH_Y;
+	}
+	
 	superJumpOnLs = (pmem_read(8) >> 6) & 0b1;
 	
 	pmem_read(9, &flickTimeMs);
