@@ -88,7 +88,7 @@ main
 	fix32 accY = get_val(ACCEL_1_Y);
 	fix32 accZ = get_val(ACCEL_1_Z);
 	fix32 accMag = sqrt(sq(accX) + sq(accY) + sq(accZ));
-	fix32 accPitch = atan2(-accY, -accZ) * pitchMult;
+	fix32 accPitch = atan2(-accY, -accZ) * accelerometerMult;
 	
 	
 	if(gyroOffButton && event_active(SWITCH_Y)){
@@ -134,7 +134,7 @@ main
 	
 	//add any new inputs to be averaged until next output
 	if(inputIsNew){
-		gyroAccumulatorX += get_actual(GYRO_1_X) * gyroMult;
+		gyroAccumulatorX += get_actual(GYRO_1_X) * gyroMult * verticalMult;
 		gyroAccumulatorY += get_actual(GYRO_1_Y) * gyroMult;
 		gyroAccumulatorZ += get_actual(GYRO_1_Z) * gyroMult;
 	}	
@@ -152,7 +152,7 @@ main
 	
 	//average our gyro data and apply our flick based on the normalized mock accelerometer data
 	fix32 avgGyro[3] = {0.0, 0.0, 0.0};
-	avgGyro[0] = get_actual(SWITCH_GYROX) * gyroMult;
+	avgGyro[0] = get_actual(SWITCH_GYROX) * gyroMult * verticalMult;
 	avgGyro[1] = get_actual(SWITCH_GYROY) * gyroMult;
 	avgGyro[2] = get_actual(SWITCH_GYROZ) * gyroMult;
 	

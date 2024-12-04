@@ -70,9 +70,24 @@ step = 10
 decimals = 2
 item = Natural Sensitivity
 
+[SPACE 3]
+group = TRUE
+control = space
+default = 10
 
-
-
+[VERTICAL SENSITIVITY MULTIPLIER]
+group = TRUE
+shortdesc = Vertical Sensitivity Multiplier (ratio of vertical to horizontal sensitivity)
+byteoffset = 26
+bitsize = 32
+bitoffset = 0
+control = spinboxf
+default = 100
+minimum = 1
+maximum = 10000
+step = 10
+decimals = 2
+item = Vertical Sensitivity Multiplier
 
 [RUMBLE OPTIONS]
 shortdesc = Enable the controller rumble/vibration/force feedback feature
@@ -94,7 +109,7 @@ control = checkbox
 default = 0
 item = Swap L and D-Pad Down
 
-[SPACE 3]
+[SPACE 4]
 group = TRUE
 control = space
 default = 10
@@ -131,7 +146,7 @@ control = checkbox
 default = 0
 item = Enable Flick Stick
 
-[SPACE 4]
+[SPACE 5]
 group = TRUE
 control = space
 default = 10
@@ -151,7 +166,7 @@ item = Flick Time (Ms)
 
 
 
-[SPACE 5]
+[SPACE 6]
 group = TRUE
 control = space
 default = 10
@@ -169,7 +184,7 @@ maximum = 45
 step = 1
 item = Forward Snap Angle
 
-[SPACE 6]
+[SPACE 7]
 group = TRUE
 control = space
 default = 10
@@ -187,7 +202,7 @@ maximum = 99
 step = 1
 item = Flick Threshold
 
-[SPACE 7]
+[SPACE 8]
 group = TRUE
 control = space
 default = 10
@@ -205,7 +220,7 @@ maximum = 500
 step = 1
 item = Special Flick Disable Window
 
-[SPACE 8]
+[SPACE 9]
 group = TRUE
 control = space
 default = 10
@@ -234,7 +249,7 @@ control = checkbox
 default = 0
 item = Gyro Off Button
 
-[SPACE 9]
+[SPACE 10]
 group = TRUE
 control = space
 default = 10
@@ -252,7 +267,7 @@ maximum = 1000
 step = 1
 item = Long Press Threshold
 
-[SPACE 10]
+[SPACE 11]
 group = TRUE
 control = space
 default = 10
@@ -296,10 +311,13 @@ bool gyroOffButton = FALSE;
 //dualsense
 fix32 gyroMult = .66;
 
+//ratio of vertical/horizontal
+fix32 verticalMult = 1.0;
+
 //fine tuned at +5 sens
 fix32 flickMult = 1900.0;
 
-fix32 pitchMult = 0.357;
+fix32 accelerometerMult = 0.357;
 
 //plus or minus number of degrees to snap to the forward (0) angle when initializing the flick
 fix32 forwardSnapAngleDegrees = 20.0;
@@ -336,8 +354,12 @@ void initConstants()
 	pmem_read(4, &naturalSens);
 	gyroMult *= naturalSens;
 
-	pmem_read(22, &pitchMult);
-	pitchMult *= naturalSens;
+	pmem_read(26, &verticalMult);
+
+	pmem_read(22, &accelerometerMult);
+	//need to also account for user gyro sens AND the vertical mult
+	accelerometerMult *= naturalSens * verticalMult;
+	
 	
 	rumbleOff = !(pmem_read(8) & 0b1);
 	booyahSwap = (pmem_read(8) >> 1) & 0b1;
