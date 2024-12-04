@@ -10,6 +10,7 @@ This project is aimed at providing additional accessibility options for the Spla
 - Selectable Gyro Axis (adaptive, yaw, roll)
 - A Gyro off ratcheting button (holding y, quick presses still act as normal)
 - Adjustable gyro sensitivity on the natural sensitivity scale (where N on that scale means that for every 1º of controller rotation, Nº of camera rotation will happen in game)
+- Adjustable vertical : horizontal sensitivity ratio
 - Deactivating controller rumble
 - Turbo "Booyah!" as well as remapping "Booyah!"
 - Quick Super Jump To Base on Left Stick Press
@@ -17,13 +18,12 @@ This project is aimed at providing additional accessibility options for the Spla
 ### Planned features (some may not be possible based on gtuner limitations)
 
 - A more expansive gyro modifier button (Gyro on, Gyro toggle, Native reset camera, reset camera pitch only, invert gyro) similar to Fortnite's gyro options
-- Expanded sensitivity options like acceleration and vertical/horizontal ratio
+- Expanded sensitivity options like acceleration
 - An option for regular horizontal+vertical stick *while* gyro is enabled (normally vertical stick is disabled while gyro is enabled)
 - Expanded joystick sensitivity curves for stick players
 
 ### Known issues
 
-- adaptive gyro axis mode may give worse results when natural sensitivity strays too far from ~3
 - Flick Stick sweep is a bit crunchy with the Pro Controller (I think this is due to the slow polling rate)
 - Flicks may not be 100% accurate due to how the hardware works (even the exact same gyro/accelerometer inputs will produce slightly different results)
 
@@ -134,5 +134,5 @@ Gyro Off Button
 
 Gyro Axis
 - Adaptive (yaw + roll based on how you hold the controller, this is most similar to how Splatoon handles gyro natively)
-- Yaw (only the yaw axis for gyro affects yaw in game)
-- Roll (only the roll axis for gyro affects yaw in game)
+- Yaw (only the yaw axis for gyro affects yaw in game, good if you mostly hold the controller flat (charge port forward))
+- Roll (only the roll axis for gyro affects yaw in game, good if you mostly hold the controller vertically (charge port up))
