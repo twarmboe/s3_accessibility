@@ -1,4 +1,4 @@
-#pragma METAINFO("Accessibility Pack for Splatoon 3", 1, 0, "beerSnobbery")
+#pragma METAINFO("Accessibility Pack for Splatoon 3", 1, 01, "beerSnobbery")
 
 #include "safeprint.gph"
 #include "rstick.gph"
