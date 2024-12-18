@@ -1,0 +1,32 @@
+#ifndef ACCEL_GPH_
+#define ACCEL_GPH_
+
+#include "settings.gph"
+//converts from gyro input to real world degrees/s
+#define CONVERSION_FACTOR 0.74256169759
+
+fix32 applyAccel(fix32 impulse) {	
+	if(accelType == ACCEL_TYPE_NONE) {
+		return impulse;
+	}
+	
+	fix32 impulseDs = min(impulse * CONVERSION_FACTOR, accelMaxImpulse);
+	
+	if(impulseDs <= accelMinImpulse){
+		return impulse; //less than minimum means no accel
+	}
+	
+	fix32 scalar = 1.0;
+	
+	if(accelType == ACCEL_TYPE_LINEAR) {
+		scalar = applyLinear(impulseDs);
+	}
+	
+	return scalar * impulse;
+}
+
+fix32 applyLinear(fix32 impulseDs) {
+	return ((impulseDs - accelMinImpulse) * (accelScaleFactor - 1.0)) + 1.0;
+}
+
+#endif

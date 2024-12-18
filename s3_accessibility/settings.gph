@@ -12,7 +12,7 @@ control = config
 item = Pro Controller:#00:00004F50
 item = DualSense:#00:0000A900
 
-[SPACE 0]
+[SPACE 0 0]
 group = TRUE
 control = space
 default = 10
@@ -31,7 +31,7 @@ step = 1
 decimals = 3
 item = Gyro Sensitivity
 
-[SPACE 1]
+[SPACE 0 1]
 group = TRUE
 control = space
 default = 10
@@ -51,7 +51,7 @@ decimals = 3
 item = Accelerometer Sensitivity
 
 
-[SPACE 2]
+[SPACE 0 2]
 group = TRUE
 control = space
 default = 10
@@ -70,7 +70,7 @@ step = 10
 decimals = 2
 item = Natural Sensitivity
 
-[SPACE 3]
+[SPACE 0 3]
 group = TRUE
 control = space
 default = 10
@@ -88,6 +88,84 @@ maximum = 10000
 step = 10
 decimals = 2
 item = Vertical Sensitivity Multiplier
+
+[SPACE 0 4]
+group = TRUE
+control = space
+default = 10
+
+[ACCELERATION TYPE]
+group = TRUE
+shortdesc = Acceleration to be applied to sensitivity
+byteoffset = 30
+bitsize = 8
+bitoffset = 0
+control = radiobox
+default = 0
+item = None
+item = Linear
+item = Gentle
+item = Aggressive
+
+[SPACE 0 5]
+group = TRUE
+control = space
+default = 10
+
+[ACCELERATION SCALE FACTOR]
+group = TRUE
+shortdesc = How much acceleration scales sensitivity (scale factor applies once every degree/s)
+byteoffset = 31
+bitsize = 32
+bitoffset = 0
+control = spinboxf
+default = 120
+minimum = 100
+maximum = 10000
+step = 10
+decimals = 2
+item = Acceleration Scale Factor
+
+[SPACE 0 6]
+group = TRUE
+control = space
+default = 10
+
+[MINIMUM ACCELERATION IMPULSE]
+group = TRUE
+shortdesc = minimum impulse for acceleration to kick in (in degrees/s)
+byteoffset = 35
+bitsize = 32
+bitoffset = 0
+control = spinboxf
+default = 0
+minimum = 0
+maximum = 100000
+step = 10
+decimals = 2
+item = Minimum Acceleration Impulse
+
+[SPACE 0 7]
+group = TRUE
+control = space
+default = 10
+
+[MAXIMUM ACCELERATION IMPULSE]
+group = TRUE
+shortdesc = maximum impulse for acceleration to kick in (in degrees/s)
+byteoffset = 39
+bitsize = 32
+bitoffset = 0
+control = spinboxf
+default = 100000
+minimum = 0
+maximum = 100000
+step = 10
+decimals = 2
+item = Maximum Acceleration Impulse
+
+
+
 
 [RUMBLE OPTIONS]
 shortdesc = Enable the controller rumble/vibration/force feedback feature
@@ -109,7 +187,7 @@ control = checkbox
 default = 0
 item = Swap L and D-Pad Down
 
-[SPACE 4]
+[SPACE 1 0]
 group = TRUE
 control = space
 default = 10
@@ -146,7 +224,7 @@ control = checkbox
 default = 0
 item = Enable Flick Stick
 
-[SPACE 5]
+[SPACE 2 0]
 group = TRUE
 control = space
 default = 10
@@ -166,7 +244,7 @@ item = Flick Time (Ms)
 
 
 
-[SPACE 6]
+[SPACE 2 1]
 group = TRUE
 control = space
 default = 10
@@ -184,7 +262,7 @@ maximum = 45
 step = 1
 item = Forward Snap Angle
 
-[SPACE 7]
+[SPACE 2 2]
 group = TRUE
 control = space
 default = 10
@@ -202,7 +280,7 @@ maximum = 99
 step = 1
 item = Flick Threshold
 
-[SPACE 8]
+[SPACE 2 3]
 group = TRUE
 control = space
 default = 10
@@ -220,7 +298,7 @@ maximum = 500
 step = 1
 item = Special Flick Disable Window
 
-[SPACE 9]
+[SPACE 2 4]
 group = TRUE
 control = space
 default = 10
@@ -249,7 +327,7 @@ control = checkbox
 default = 0
 item = Gyro Off Button
 
-[SPACE 10]
+[SPACE 3 0]
 group = TRUE
 control = space
 default = 10
@@ -267,7 +345,7 @@ maximum = 1000
 step = 1
 item = Long Press Threshold
 
-[SPACE 11]
+[SPACE 3 1]
 group = TRUE
 control = space
 default = 10
@@ -301,6 +379,15 @@ item = Roll
 #include <switch.gph>
 #include <ps5.gph>
 
+#define AXIS_ADAPTIVE 0
+#define AXIS_YAW 1
+#define AXIS_ROLL 2
+
+#define ACCEL_TYPE_NONE 0
+#define ACCEL_TYPE_LINEAR 1
+#define ACCEL_TYPE_GENTLE 2
+#define ACCEL_TYPE_AGGRESSIVE 3
+
 bool rumbleOff = FALSE;
 bool booyahSwap = FALSE;
 bool booyahTurbo = FALSE;
@@ -309,6 +396,11 @@ bool superJumpOnLs = TRUE;
 bool gyroOffButtonEnabled = FALSE;
 
 uint8 gyroOffButton = SWITCH_Y;
+
+uint8 accelType = ACCEL_TYPE_NONE;
+fix32 accelScaleFactor = 1.0;
+fix32 accelMinImpulse = 0.0;
+fix32 accelMaxImpulse = 1000.0;
 
 //fine tuned at +5 sens
 //procon 
@@ -342,10 +434,6 @@ uint16 longPressThreshold = 200;
 
 fix32 zrThresholdPercentage = 50.0;
 
-#define AXIS_ADAPTIVE 0
-#define AXIS_YAW 1
-#define AXIS_ROLL 2
-
 uint8 gyroAxis;
 
 void initConstants()
@@ -364,6 +452,12 @@ void initConstants()
 	//need to also account for user gyro sens AND the vertical mult
 	accelerometerMult *= naturalSens * verticalMult;
 	
+	pmem_read(30, &accelType);
+	pmem_read(31, &accelScaleFactor);
+	pmem_read(35, &accelMinImpulse);
+	pmem_read(39, &accelMaxImpulse);
+	//make sure we're at least the min
+	accelMaxImpulse = max(accelMaxImpulse, accelMinImpulse);
 	
 	rumbleOff = !(pmem_read(8) & 0b1);
 	booyahSwap = (pmem_read(8) >> 1) & 0b1;

@@ -4,6 +4,7 @@
 #include "rstick.gph"
 #include "flickstick.gph"
 #include "settings.gph"
+#include "accel.gph"
 #include "io_sync.gph"
 #include <switch.gph>
 #include <ps5.gph>
@@ -199,6 +200,10 @@ main
 		avgGyro[1] = 0.0;
 		avgGyro[2] = 0.0;
 	}
+	
+	avgGyro[0] = applyAccel(avgGyro[0]);
+	avgGyro[1] = applyAccel(avgGyro[1]);
+	avgGyro[2] = applyAccel(avgGyro[2]);
 	
 	fix32 newX = avgGyro[0] + (flickYawAccumulator * -normalizedAcc[0]);
 	fix32 newY = avgGyro[1] + (flickYawAccumulator * -normalizedAcc[1]);
