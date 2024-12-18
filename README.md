@@ -113,6 +113,8 @@ If you don't know what your natural sensitivity preference is here is a table of
 | -4.5                 | 1.47                |
 | -5                   | 1.35                |
 
+- Vertical Sensitivity Multiplier - because there's more emphasis on aiming horizontally, many players like to have a fast horizontal sensitivity with a slower vertical sensitivity for stability. Common values here are from 0.6 to 1.0
+
 Enable Rumble - I would recommend disabling this if you find that rumble is messing with your gyro aim or if you just don't like rumble
 
 Booyah options - You may find it helpful to swap L and Dpad down so that it's easier to press the booyah button for booyah bombs. There is also a turbo option if you have trouble mashing buttons.
