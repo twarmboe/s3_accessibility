@@ -126,14 +126,15 @@ item = Turbo Booyah
 
 
 [SUPER JUMP TO BASE MACRO]
-shortdesc = Pressing the left stick will execute the inputs to jump to base
-byteoffset = 8
-bitsize = 1
-bitoffset = 6
-control = checkbox
-default = 1
-item = Left Stick Press to Super Jump to base
-
+shortdesc = Will execute the inputs to jump to base
+byteoffset = 30
+bitsize = 8
+bitoffset = 0
+control = radiobox
+default = 0
+item = Unassigned
+item = Left Stick Press
+item = Touchpad Press
 
 
 [FLICK STICK]
@@ -159,7 +160,7 @@ bitsize = 16
 bitoffset = 0
 control = spinbox
 default = 100
-minimum = 100
+minimum = 90
 maximum = 2000
 step = 1
 item = Flick Time (Ms)
@@ -305,10 +306,10 @@ bool rumbleOff = FALSE;
 bool booyahSwap = FALSE;
 bool booyahTurbo = FALSE;
 bool flickStickEnabled = FALSE;
-bool superJumpOnLs = TRUE;
 bool gyroOffButtonEnabled = FALSE;
 
 uint8 gyroOffButton = SWITCH_Y;
+uint8 superjumpOption = 0;
 
 //fine tuned at +5 sens
 //procon 
@@ -378,7 +379,7 @@ void initConstants()
 		gyroOffButton = SWITCH_Y;
 	}
 	
-	superJumpOnLs = (pmem_read(8) >> 6) & 0b1;
+	pmem_read(30, &superjumpOption);
 	
 	pmem_read(9, &flickTimeMs);
 	
