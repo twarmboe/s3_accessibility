@@ -44,8 +44,6 @@ A controller. Controllers tested so far:
 
 Make sure your switch has wired communication enabled (system settings -> Controllers and Sensors -> Pro Controller Wired Communication)
 
-For most options to work properly you should set your in-game gyro sensitivity to +5. Don't worry if this is higher than what you normall play with, you can modify the effective sensitivity in the configuration step later.
-
 You will need to install [Gtuner IV](https://www.consoletuner.com/titan-two-downloads/)
 
 In Gtuner go to `Device Configuration` (located in the bottom right) and make sure the `Output Protocol` is set to `USB Nintendo Switch`
@@ -83,6 +81,8 @@ Install method 2:
 
 Gyro Options
 
+- In Game Motion Sensitivity - **IMPORTANT:** This should match whatever your in game motion is currently set to. You may wish to tweak this value as there are different tradeoffs which change how things feel; but **always keep it in sync with your in game sensitivity**.
+
  - Sensitivity Presets - Select which controller you're using first. This will configure the gyro and accelerometer sensitivities so you don't have to fiddle with those.
 
 - Natural Sensitivity Multiplier - Adjust your sensitivity preference here. Note that this is based on the natural sensitivity scale
@@ -91,27 +91,27 @@ If you don't know what your natural sensitivity preference is here is a table of
 
 | Splatoon Sensitivity | Natural Sensitivity |
 | -------------------- | ------------------- |
-| +5                   | 3.37                |
-| +4.5                 | 3.19                |
-| +4                   | 3.14                |
-| +3.5                 | 3.07                |
-| +3                   | 3.02                |
-| +2.5                 | 2.97                |
-| +2                   | 2.92                |
-| +1.5                 | 2.87                |
-| +1                   | 2.82                |
-| +0.5                 | 2.78                |
-| 0                    | 2.73                |
-| -0.5                 | 2.60                |
-| -1                   | 2.44                |
-| -1.5                 | 2.28                |
-| -2                   | 2.13                |
-| -2.5                 | 2.00                |
-| -3                   | 1.89                |
-| -3.5                 | 1.75                |
-| -4                   | 1.60                |
-| -4.5                 | 1.47                |
-| -5                   | 1.35                |
+| +5                   | 3.18                |
+| +4.5                 | 3.16                |
+| +4                   | 3.12                |
+| +3.5                 | 3.06                |
+| +3                   | 3.00                |
+| +2.5                 | 2.94                |
+| +2                   | 2.89                |
+| +1.5                 | 2.85                |
+| +1                   | 2.78                |
+| +0.5                 | 2.72                |
+| 0                    | 2.67                |
+| -0.5                 | 2.53                |
+| -1                   | 2.41                |
+| -1.5                 | 2.27                |
+| -2                   | 2.12                |
+| -2.5                 | 1.99                |
+| -3                   | 1.85                |
+| -3.5                 | 1.72                |
+| -4                   | 1.59                |
+| -4.5                 | 1.45                |
+| -5                   | 1.30                |
 
 - Vertical Sensitivity Multiplier - because there's more emphasis on aiming horizontally, many players like to have a fast horizontal sensitivity with a slower vertical sensitivity for stability. Common values here are from 0.6 to 1.0
 
@@ -123,11 +123,10 @@ Super Jump To Base - pressing the left stick or pressing the touchpad can be use
 
 Flick Stick
   - Enable Flick Stick will replace the right stick behavior with a flick stick behavior (all other options don't matter if this is disabled).
-    **For this to work properly your gyro (motion controls) must be enabled and set to +5 Sensitivity.** Stick sensitivity can be set to anything and has no effect.
+    **For this to work properly your gyro (motion controls) must be enabled and match what you set in "In Game Motion Sensitivity".** Stick sensitivity can be set to anything and has no effect.
   - Forward snap angle. Often to turn more slowly you'll want to press forward on the stick (resulting in no flick) and then sweep the stick in a direction for one-to-one horizontal camera movement. A forward snap angle means that anything within this angle (in degrees) of up will count as if it was pressed perfectly up in other words there will be no flick.
   - Flick Threshold. This is the percentage the stick must travel before a flick is registered. Smaller values mean flicks occur sooner; larger values mean the angle of the flick will be more accurate.
   - Special Flick Stick Disable window. Sometimes when using a special you will accidentally push the stick enough to cause an unintended flick. This window in milliseconds is how long after pressing special flicks will be disabled.
-  - Flick Stick sensitivity. Most users should not need to mess with this; **make sure your gyro (motion control) sensitivity is set to +5**. If you still find that flick stick angles are consistently wrong, you may need to tweak this value.
 
 
 Gyro Off Button
