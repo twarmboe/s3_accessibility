@@ -119,7 +119,7 @@ Enable Rumble - I would recommend disabling this if you find that rumble is mess
 
 Booyah options - You may find it helpful to swap L and Dpad down so that it's easier to press the booyah button for booyah bombs. There is also a turbo option if you have trouble mashing buttons.
 
-Super Jump To Base - pressing the left stick can be used to automatically super jump to base (map + booyah + a)
+Super Jump To Base - pressing the left stick or pressing the touchpad can be used to automatically super jump to base (map + booyah + a)
 
 Flick Stick
   - Enable Flick Stick will replace the right stick behavior with a flick stick behavior (all other options don't matter if this is disabled).
