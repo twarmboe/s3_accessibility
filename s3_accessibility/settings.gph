@@ -5,14 +5,50 @@
 /***
 <cfgdesc>
 
-
 [GYRO OPTIONS]
+control
+shortdesc = In Game Motion Sensitivity
+control = combobox
+byteoffset = 31
+bitsize = 8
+bitoffset = 0
+default = 7
+item = 5
+item = 4.5
+item = 4
+item = 3.5
+item = 3
+item = 2.5
+item = 2
+item = 1.5
+item = 1
+item = 0.5
+item = 0
+item = -0.5
+item = -1
+item = -1.5
+item = -2
+item = -2.5
+item = -3
+item = -3.5
+item = -4
+item = -4.5
+item = -5
+
+
+[SPACE 0]
+group = TRUE
+control = space
+default = 10
+
+[CONTROLLER PRESETS]
+group = TRUE
 shortdesc = Controller Sensitivity Presets
 control = config
 item = Pro Controller:#00:00004F50
 item = DualSense:#00:0000A900
 
-[SPACE 0]
+[SPACE 1]
 group = TRUE
 control = space
 default = 10
@@ -31,7 +67,7 @@ step = 1
 decimals = 3
 item = Gyro Sensitivity
 
-[SPACE 1]
+[SPACE 2]
 group = TRUE
 control = space
 default = 10
@@ -51,7 +87,7 @@ decimals = 3
 item = Accelerometer Sensitivity
 
 
-[SPACE 2]
+[SPACE 3]
 group = TRUE
 control = space
 default = 10
@@ -63,14 +99,14 @@ byteoffset = 4
 bitsize = 32
 bitoffset = 0
 control = spinboxf
-default = 280
+default = 300
 minimum = 1
 maximum = 10000
 step = 10
 decimals = 2
 item = Natural Sensitivity
 
-[SPACE 3]
+[SPACE 4]
 group = TRUE
 control = space
 default = 10
@@ -95,9 +131,8 @@ byteoffset = 8
 bitsize = 1
 bitoffset = 0
 control = checkbox
-default = 1
+default = 0
 item = Enable Rumble
-
 
 
 [BOOYAH OPTIONS]
@@ -109,7 +144,7 @@ control = checkbox
 default = 0
 item = Swap L and D-Pad Down
 
-[SPACE 4]
+[SPACE 5]
 group = TRUE
 control = space
 default = 10
@@ -147,7 +182,7 @@ control = checkbox
 default = 0
 item = Enable Flick Stick
 
-[SPACE 5]
+[SPACE 6]
 group = TRUE
 control = space
 default = 10
@@ -167,7 +202,7 @@ item = Flick Time (Ms)
 
 
 
-[SPACE 6]
+[SPACE 7]
 group = TRUE
 control = space
 default = 10
@@ -179,13 +214,13 @@ byteoffset = 11
 bitsize = 8
 bitoffset = 0
 control = spinbox
-default = 10
+default = 0
 minimum = 0
 maximum = 45
 step = 1
 item = Forward Snap Angle
 
-[SPACE 7]
+[SPACE 8]
 group = TRUE
 control = space
 default = 10
@@ -203,7 +238,7 @@ maximum = 99
 step = 1
 item = Flick Threshold
 
-[SPACE 8]
+[SPACE 9]
 group = TRUE
 control = space
 default = 10
@@ -221,24 +256,10 @@ maximum = 500
 step = 1
 item = Special Flick Disable Window
 
-[SPACE 9]
+[SPACE 10]
 group = TRUE
 control = space
 default = 10
-
-[FLICK SENSITIVITY]
-group = TRUE
-shortdesc = How sensitive flick stick is (only adjust if flick stick angles are consistently off; make sure you're on +5 motion sensitivity in game first)
-byteoffset = 15
-bitsize = 32
-bitoffset = 0
-control = spinboxf
-default = 22900
-minimum = 1
-maximum = 3276799
-step = 100
-decimals = 2
-item = Flick Sensitivity
 
 [GYRO OFF BUTTON]
 collapsible = 1
@@ -250,7 +271,7 @@ control = checkbox
 default = 0
 item = Gyro Off Button
 
-[SPACE 10]
+[SPACE 11]
 group = TRUE
 control = space
 default = 10
@@ -268,7 +289,7 @@ maximum = 1000
 step = 1
 item = Long Press Threshold
 
-[SPACE 11]
+[SPACE 12]
 group = TRUE
 control = space
 default = 10
@@ -289,7 +310,7 @@ byteoffset = 21
 bitsize = 8
 bitoffset = 0
 control=radiobox
-default = 0
+default = 1
 item = Adaptive
 item = Yaw
 item = Roll
@@ -301,6 +322,7 @@ item = Roll
 
 #include <switch.gph>
 #include <ps5.gph>
+#include "ingame_sens.gph"
 
 bool rumbleOff = FALSE;
 bool booyahSwap = FALSE;
@@ -321,7 +343,7 @@ fix32 gyroMult = .66;
 fix32 verticalMult = 1.0;
 
 //fine tuned at +5 sens
-fix32 flickMult = 1900.0;
+fix32 flickMult = 238.0;
 
 fix32 accelerometerMult = 0.357;
 
@@ -354,8 +376,13 @@ void initConstants()
 	pmem_load();
 	
 	pmem_read(0, &gyroMult);
+	
+	uint8 ingameSensIdx = 0;
+	pmem_read(31, &ingameSensIdx);
+	fix32 sensMult = ingameSensMult[ingameSensIdx];
+	gyroMult *= sensMult;
+	
 	fix32 naturalSens = 0.0;
-
 	pmem_read(4, &naturalSens);
 	gyroMult *= naturalSens;
 
@@ -363,7 +390,7 @@ void initConstants()
 
 	pmem_read(22, &accelerometerMult);
 	//need to also account for user gyro sens AND the vertical mult
-	accelerometerMult *= naturalSens * verticalMult;
+	accelerometerMult *= naturalSens * verticalMult * sensMult;
 	
 	
 	rumbleOff = !(pmem_read(8) & 0b1);
@@ -393,7 +420,7 @@ void initConstants()
 	
 	pmem_read(13, &r3FlickDisableWindow);
 	
-	pmem_read(15, &flickMult);
+	flickMult = 238.0 * sensMult;
 	
 	pmem_read(19, &longPressThreshold);
 	
