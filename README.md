@@ -15,13 +15,6 @@ This project is aimed at providing additional accessibility options for the Spla
 - Turbo "Booyah!" as well as remapping "Booyah!"
 - Quick Super Jump To Base on Left Stick Press
 
-### Planned features (some may not be possible based on gtuner limitations)
-
-- A more expansive gyro modifier button (Gyro on, Gyro toggle, Native reset camera, reset camera pitch only, invert gyro) similar to Fortnite's gyro options
-- Expanded sensitivity options like acceleration
-- An option for regular horizontal+vertical stick *while* gyro is enabled (normally vertical stick is disabled while gyro is enabled)
-- Expanded joystick sensitivity curves for stick players
-
 ### Known issues
 
 - Flick Stick sweep is a bit crunchy with the Pro Controller (I think this is due to the slow polling rate)
