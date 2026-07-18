@@ -79,6 +79,8 @@ Install method 2:
 
 ### Configuration
 
+-----
+
 Gyro Options
 
 - In Game Motion Sensitivity - **IMPORTANT:** This should match whatever your in game motion is currently set to. You may wish to tweak this value as there are different tradeoffs which change how things feel; but **always keep it in sync with your in game sensitivity**.
@@ -115,11 +117,19 @@ If you don't know what your natural sensitivity preference is here is a table of
 
 - Vertical Sensitivity Multiplier - because there's more emphasis on aiming horizontally, many players like to have a fast horizontal sensitivity with a slower vertical sensitivity for stability. Common values here are from 0.6 to 1.0
 
+-----
+
 Enable Rumble - I would recommend disabling this if you find that rumble is messing with your gyro aim or if you just don't like rumble
+
+-----
 
 Booyah options - You may find it helpful to swap L and Dpad down so that it's easier to press the booyah button for booyah bombs. There is also a turbo option if you have trouble mashing buttons.
 
+-----
+
 Super Jump To Base - pressing the left stick or pressing the touchpad can be used to automatically super jump to base (map + booyah + a)
+
+-----
 
 Flick Stick
   - Enable Flick Stick will replace the right stick behavior with a flick stick behavior (all other options don't matter if this is disabled).
@@ -128,11 +138,14 @@ Flick Stick
   - Flick Threshold. This is the percentage the stick must travel before a flick is registered. Smaller values mean flicks occur sooner; larger values mean the angle of the flick will be more accurate.
   - Special Flick Stick Disable window. Sometimes when using a special you will accidentally push the stick enough to cause an unintended flick. This window in milliseconds is how long after pressing special flicks will be disabled.
 
+-----
 
 Gyro Off Button
  - Enable if you wish to hold y to disable gyro (ratcheting), y will still work normally if you press and release it within a certain window.
  - The length of the window in ms can be set (defaults to 200).
  - If using a playstation controller, you may wish to have touchpad touches disable gyro instead.
+
+-----
 
 Gyro Axis
 - Adaptive (yaw + roll based on how you hold the controller, this is most similar to how Splatoon handles gyro natively)
